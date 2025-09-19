@@ -27,7 +27,7 @@ class MongoClientSingleton:
         return self._client
     
     async def close_client(self):
-        await self._client.close()
+        self._client.close()
         self._client = None
         print("MongoDB Atlas closed.")
     
