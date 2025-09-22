@@ -26,7 +26,7 @@ app = FastAPI(
 )
 
 app.include_router(bookRoute.router, prefix="/books", tags=["Books"])
-
+app.include_router(userRoute.router, prefix="/users", tags=["Users"])
 @app.get("/")
 async def root():
     return {
