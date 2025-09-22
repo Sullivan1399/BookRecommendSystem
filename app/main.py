@@ -3,8 +3,10 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from .config.settings import settings
-from .config.database import MongoClientSingleton
+from app.config.settings import settings
+from app.config.database import MongoClientSingleton
+from app.services import bookService, userService
+from app.routers import bookRoute, userRoute
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,6 +24,8 @@ app = FastAPI(
     title="Books Recommendation Application",
     lifespan=lifespan
 )
+
+app.include_router(bookRoute.router, prefix="/books", tags=["Books"])
 
 @app.get("/")
 async def root():

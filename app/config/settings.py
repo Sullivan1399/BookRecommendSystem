@@ -6,8 +6,12 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore"
     )
-    MONGODB_URI: str = ""
     HOST:str = "127.0.0.1"
     PORT:int = 8000
+
+    MONGODB_URI: str = ""
+    DATABASE_NAME: str = "BookRecommend"
+    BOOK_COLLECTION_NAME: str = "Book"
+    USER_COLLECTION_NAME: str = "User"
 
 settings = Settings()
