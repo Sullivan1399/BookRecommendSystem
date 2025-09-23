@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     USER_COLLECTION_NAME: str = "User"
 
     # JWT Auth
-    SECRET_KEY: str = "supersecret"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
