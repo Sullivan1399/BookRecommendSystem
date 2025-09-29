@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.models.user import UserCreate, UserUpdate, UserResponse
+from app.models.user import UserCreate, UserUpdate, UserResponse, UserInDB
 from app.config.settings import settings
 
 
@@ -12,12 +12,15 @@ class UserRepository:
         self.database = self.mongoClient[settings.DATABASE_NAME]
         self.collection = self.database[settings.USER_COLLECTION_NAME]
 
-    def _user_helper(self, user: dict) -> Optional[UserResponse]:
-        """Convert MongoDB dict -> UserResponse"""
+    def _user_helper(self, user: dict, include_password: bool = False):
         if not user:
             return None
-        user["_id"] = str(user["_id"])  # convert ObjectId -> str
-        return UserResponse(**user)
+        user["_id"] = str(user["_id"])
+        if include_password:
+            return UserInDB(**user)   
+        else:
+            user.pop("password_hash", None)  
+            return UserResponse(**user)
 
     async def insert_user(self, user_data: dict) -> UserResponse:
         """Insert raw dict user_data vào DB"""
@@ -33,9 +36,9 @@ class UserRepository:
         user = await self.collection.find_one({"email": email})
         return self._user_helper(user)
 
-    async def find_user_by_username(self, username: str) -> Optional[UserResponse]:
+    async def find_user_by_username(self, username: str, include_password: bool = False):
         user = await self.collection.find_one({"username": username})
-        return self._user_helper(user)
+        return self._user_helper(user, include_password=include_password)
 
     async def update_user(self, user_id: str, update_data: dict) -> Optional[UserResponse]:
         """Update raw dict update_data"""
@@ -43,42 +46,6 @@ class UserRepository:
         result = await self.collection.update_one(
             {"_id": ObjectId(user_id)},
             {"$set": update_data}
-        )
-        if result.matched_count == 0:
-            return None
-        return await self.find_user_by_id(user_id)
-
-    async def update_user_wishlist(self, user_id: str, book_id: str) -> Optional[UserResponse]:
-        result = await self.collection.update_one(
-            {"_id": ObjectId(user_id)},
-            {
-                "$addToSet": {"wishlist": book_id},
-                "$set": {"updatedAt": datetime.utcnow()},
-            }
-        )
-        if result.matched_count == 0:
-            return None
-        return await self.find_user_by_id(user_id)
-
-    async def update_user_favorites(self, user_id: str, book_id: str) -> Optional[UserResponse]:
-        result = await self.collection.update_one(
-            {"_id": ObjectId(user_id)},
-            {
-                "$addToSet": {"favorite_books": book_id},
-                "$set": {"updatedAt": datetime.utcnow()},
-            }
-        )
-        if result.matched_count == 0:
-            return None
-        return await self.find_user_by_id(user_id)
-
-    async def add_reading_history(self, user_id: str, history_item: dict) -> Optional[UserResponse]:
-        result = await self.collection.update_one(
-            {"_id": ObjectId(user_id)},
-            {
-                "$push": {"readingHistory": history_item},
-                "$set": {"updatedAt": datetime.utcnow()},
-            }
         )
         if result.matched_count == 0:
             return None

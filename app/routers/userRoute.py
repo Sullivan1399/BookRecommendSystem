@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 
 from app.utils.dependencies import get_user_service
@@ -63,33 +62,10 @@ async def update_user(user_id: str, update_data: UserUpdate,
         raise HTTPException(status_code=400, detail="Update failed")
     return updated_user
 
-
-# =========================
-# EXTRA FEATURES
-# =========================
-@router.put("/{user_id}/wishlist/{book_id}", response_model=UserResponse)
-async def add_to_wishlist(user_id: str, book_id: str,
-                          token: str = Depends(oauth2_scheme),
-                          userService: UserService = Depends(get_user_service)):
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        if payload.get("sub") != user_id and not payload.get("admin"):
-            raise HTTPException(status_code=403, detail="Not authorized")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    return await userService.update_user_wishlist(user_id, book_id)
-
-
-@router.put("/{user_id}/favorites/{book_id}", response_model=UserResponse)
-async def add_to_favorites(user_id: str, book_id: str,
-                           token: str = Depends(oauth2_scheme),
-                           userService: UserService = Depends(get_user_service)):
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        if payload.get("sub") != user_id and not payload.get("admin"):
-            raise HTTPException(status_code=403, detail="Not authorized")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    return await userService.update_user_favorites(user_id, book_id)
+@router.post("/logout")
+async def logout(userService: UserService = Depends(get_user_service),
+                 token: str = Depends(oauth2_scheme)):
+    """
+    Logout user: Client should delete the JWT token locally (in storage/cookie).
+    """
+    return await userService.logout_user()
