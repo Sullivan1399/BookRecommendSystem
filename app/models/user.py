@@ -9,7 +9,7 @@ class UserBase(BaseModel):
     age: Optional[int] = Field(None, alias="age")
     gender: Optional[str] = Field(None, alias="gender")  # male / female / other
     favorite_books: List[str] = Field(default_factory=list, alias="favorite_books")
-    wishlist: List[str] = Field(default_factory=list, alias="wishlist")
+    favorite_genre: List[str] = Field(default_factory=list, alias="favorite_genre")
     recommendations: List[str] = Field(default_factory=list, alias="recommendations")
     admin_status: bool = Field(False, alias="admin_status")
 
@@ -48,7 +48,7 @@ class UserUpdate(BaseModel):
     age: Optional[int] = Field(None, alias="age")
     gender: Optional[str] = Field(None, alias="gender")
     favorite_books: Optional[List[str]] = Field(None, alias="favorite_books")
-    wishlist: Optional[List[str]] = Field(None, alias="wishlist")
+    favorite_genre: List[str] = Field(default_factory=list, alias="favorite_genre")
     recommendations: Optional[List[str]] = Field(None, alias="recommendations")
 
     model_config = ConfigDict(

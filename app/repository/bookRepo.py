@@ -1,21 +1,24 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
-from app.utils.embedding import generate_embedding
 from app.config.settings import settings
 
-
-class BookRepository():
+class BookRepository:
     def __init__(self, mongoClient: AsyncIOMotorClient):
         self.mongoClient = mongoClient
         self.database = self.mongoClient[settings.DATABASE_NAME]
         self.collection = self.database[settings.BOOK_COLLECTION_NAME]
 
-    async def get_all(self):
-        cursor = self.collection.find()
-        return await cursor.to_list(length=1000)
-    async def get_k_books(self, limit: int = 10):
+    async def get_all(self, limit: int = 1000):
         cursor = self.collection.find().limit(limit)
-        return cursor
+        return [doc async for doc in cursor]
+
+    async def get_book_by_id(self, id: ObjectId):
+        return await self.collection.find_one({"_id": id})
+    
+    async def get_books_paginated(self, page: int = 1, limit: int = 10):
+        skip = (page - 1) * limit
+        cursor = self.collection.find().skip(skip).limit(limit)
+        return [doc async for doc in cursor]
     
     async def get_book_by_field(self, field: str, value: str):
         cursor = self.collection.find({field: {"$regex": value, "$options": "i"}})
@@ -27,23 +30,12 @@ class BookRepository():
     async def insert_book(self, book: dict):
         if await self._book_exist("ISBN", book["ISBN"]):
             raise ValueError(f"Book ISBN={book['ISBN']}, Name={book['Book-Title']} existed")
-
-        # Sinh embedding từ Title + Author + Category
-        text = f"{book.get('Book-Title','')} {book.get('Book-Author','')} {book.get('Category','')}"
-        book["embedding"] = generate_embedding(text)
-
         result = await self.collection.insert_one(book)
         return result.inserted_id
 
     async def update_book(self, id: ObjectId, update_data: dict):
         if not await self._book_exist("_id", id):
-            raise ValueError(f"Book ISBN={update_data.get('ISBN','?')}, Name={update_data.get('Book-Title','?')} not existed")
-
-        # Cập nhật embedding nếu có Title/Author/Category mới
-        if any(k in update_data for k in ["Book-Title", "Book-Author", "Category"]):
-            text = f"{update_data.get('Book-Title','')} {update_data.get('Book-Author','')} {update_data.get('Category','')}"
-            update_data["embedding"] = generate_embedding(text)
-
+            raise ValueError(f"Book with _id={id} not existed")
         result = await self.collection.update_one({"_id": id}, {"$set": update_data})
         return result.matched_count
     

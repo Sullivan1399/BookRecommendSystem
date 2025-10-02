@@ -1,0 +1,115 @@
+/* Đặt @import ở đầu file */
+
+@import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
+@import "tailwindcss"; /* Import Tailwind CSS */
+
+/* Cấu hình các thuộc tính mặc định */
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif, Roboto Slab, Fugaz One, Satisfy, Pacifico
+  ;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #ffffff;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --login-background: url(../public/img/bg-login.jpg); /* Đảm bảo hình ảnh đúng đường dẫn */
+}
+
+
+/* Các kiểu cho body */
+/* body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+} */
+/* Thêm vào file CSS của bạn */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#root {
+  height: 100vh;
+  background: radial-gradient(#5a47ce, #232323 80%);
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto Slab', sans-serif;
+}
+
+.outline-text {
+  -webkit-text-stroke: 1px white;
+}
+
+/* Cấu hình cho light mode */
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Kiểu cho phần login-bg */
+.login-bg {
+  /* background-image: var(--login-background); */
+  background-color: white;
+  font-family: 'Roboto Slab', sans-serif;
+}
+.personal-bg {
+  background-image: url('https://media.istockphoto.com/id/1407642855/vi/vec-to/vector-tr%E1%BB%ABu-t%C6%B0%E1%BB%A3ng-%C4%91%E1%BA%A7y-m%C3%A0u-s%E1%BA%AFc-ch%E1%BA%A3y-n%E1%BB%81n-y%E1%BA%BFu-t%E1%BB%91-thi%E1%BA%BFt-k%E1%BA%BF-%C4%91%E1%BB%83-tr%C3%ACnh-b%C3%A0y-m%E1%BA%ABu-trang-web.jpg?s=2048x2048&w=is&k=20&c=kPGXpO1i8MAXm9erUJTob9GFGhnGGxnYzgnQRqHXJSk=');
+  background-size: cover;
+  background-position: top;
+}
+.bg-2-home {
+  background-image: url('https://img.freepik.com/free-vector/paper-style-white-monochrome-background_23-2149001607.jpg?t=st=1741877872~exp=1741881472~hmac=8d85f2df47e1299f8f8683626828101d5a15cb3cbae6242465bf772bd93cc7b7&w=996');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.button-gradient-home {
+  background: #8A2387;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #F27121, #E94057, #8A2387);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #F27121, #E94057, #8A2387); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  
+}
+
+.care-text {
+  background: #8A2387;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #F27121, #E94057, #8A2387);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #F27121, #E94057, #8A2387); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-info-body, .header-social-care {
+  font-family: 'Pacifico';
+}
+.sx-react-calendar-wrapper {
+  width: 100%;
+  max-width: 100vw;
+  height: 800px;
+  max-height: 90vh;
+}

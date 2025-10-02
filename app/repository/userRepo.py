@@ -17,13 +17,12 @@ class UserRepository:
             return None
         user["_id"] = str(user["_id"])
         if include_password:
-            return UserInDB(**user)   
+            return UserInDB(**user)
         else:
-            user.pop("password_hash", None)  
+            user.pop("password_hash", None)
             return UserResponse(**user)
 
     async def insert_user(self, user_data: dict) -> UserResponse:
-        """Insert raw dict user_data vào DB"""
         result = await self.collection.insert_one(user_data)
         created = await self.collection.find_one({"_id": result.inserted_id})
         return self._user_helper(created)
@@ -41,7 +40,6 @@ class UserRepository:
         return self._user_helper(user, include_password=include_password)
 
     async def update_user(self, user_id: str, update_data: dict) -> Optional[UserResponse]:
-        """Update raw dict update_data"""
         update_data["updatedAt"] = datetime.utcnow()
         result = await self.collection.update_one(
             {"_id": ObjectId(user_id)},

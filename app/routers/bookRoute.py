@@ -11,9 +11,14 @@ router = APIRouter()
 async def get_all(bookServices: BookServices = Depends(get_book_service)):
     return await bookServices.get_all()
 
-@router.get("/k", response_model=list[BookResponse])
-async def get_k_books(limit: int = 10, bookServices: BookServices = Depends(get_book_service)):
-    return await bookServices.get_k_books(limit)
+@router.get("/page", response_model=list[BookResponse])
+async def get_books_paginated(
+    page: int = 1, 
+    limit: int = 10, 
+    bookServices: BookServices = Depends(get_book_service)
+):
+    return await bookServices.get_books_paginated(page, limit)
+
 
 @router.get("/search", response_model=list[BookResponse])
 async def search(field: str, value: str,
@@ -37,11 +42,7 @@ async def delete(book_id: str,
                  bookServices: BookServices = Depends(get_book_service)):
     deleted_count = await bookServices.delete_book(book_id)
     return {"deleted_count": deleted_count}
-@router.get("/recommend")
-async def recommend_books(query: str, k: int = 5,
-                          bookServices: BookServices = Depends(get_book_service)):
-    try:
-        results = await bookServices.recommend_books(query, k)
-        return results
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+@router.get("/vector_search", response_model=list[BookResponse])
+async def vector_search(query: str, k: int = 5,
+                        bookServices: BookServices = Depends(get_book_service)):
+    return await bookServices.vector_search(query, k)

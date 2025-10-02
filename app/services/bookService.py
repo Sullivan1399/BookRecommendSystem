@@ -1,12 +1,13 @@
 from bson import ObjectId
 from app.utils.embedding import generate_embedding
 from app.repository.bookRepo import BookRepository
+from app.repository.bookEmbeddingRepo import BookEmbeddingRepository
 from app.models.book import BookResponse
-from app.schema.bookSchema import list_serial
 
 class BookServices():
     def __init__(self, mongoClient):
         self.bookRepository = BookRepository(mongoClient)
+        self.embeddingRepo = BookEmbeddingRepository(mongoClient)
 
     def _convert_id_to_str(self, books: list[dict]) -> list[dict]:
         for book in books:
@@ -14,71 +15,53 @@ class BookServices():
                 book["_id"] = str(book["_id"])
         return books
     
-    def _convert_to_ObjectID(self, id: str):
-        object_id = None
-        try:
-            object_id = ObjectId(id)
-            return object_id
-        except Exception:
-            raise ValueError("Invalid id format")
-    
     async def get_all(self):
         books = await self.bookRepository.get_all()
         books = self._convert_id_to_str(books)
         return [BookResponse(**book) for book in books]
     
-    async def get_k_books(self, limit: int = 10):
-        cursor = await self.bookRepository.get_k_books(limit)   
-        books = await cursor.to_list(length=limit)
+    async def get_books_paginated(self, page: int = 1, limit: int = 10):
+        books = await self.bookRepository.get_books_paginated(page, limit)
         books = self._convert_id_to_str(books)
         return [BookResponse(**book) for book in books]
 
- 
-    
+
     async def get_book_by_field(self, field: str, value: str):
-        cursor = await self.bookRepository.get_book_by_field(field, value)
-        books = await cursor.to_list(length=1000)
-        # return list_serial(books)
+        books = await self.bookRepository.get_book_by_field(field, value)
         books = self._convert_id_to_str(books)
-        return [BookResponse(**book) for book in books] 
+        return [BookResponse(**book) for book in books]
 
     async def insert_book(self, book: dict):
-        inserted_id = await self.bookRepository.insert_book(book)
-        return str(inserted_id)
+        result = await self.bookRepository.insert_book(book)
+        text = f"{book.get('Book-Title','')} {book.get('Book-Author','')} {book.get('Category','')} {book.get('Description','')}"
+        embedding = generate_embedding(text)
+        await self.embeddingRepo.insert(book["ISBN"], embedding)
+        return str(result)
 
-    async def update_book(self, id: str, book):
-        objetcId = self._convert_to_ObjectID(id)
-        matched_count = await self.bookRepository.update_book(objetcId, book)
-        return str(matched_count)
+    async def update_book(self, id: str, update_data: dict):
+        obj_id = ObjectId(id)
+        book = await self.bookRepository.get_book_by_id(obj_id)
+        if not book:
+            raise ValueError("Book not found")
 
-    async def delete_book(self, id: str):
-        objetcId = self._convert_to_ObjectID(id)
-        deleted_count = await self.bookRepository.delete_book(objetcId)
-        return str(deleted_count)
-    
-    async def recommend_books(self, query: str, k: int = 5):
+        await self.bookRepository.update_book(obj_id, update_data)
+
+        if any(k in update_data for k in ["Book-Title", "Book-Author", "Category", "Description"]):
+            text = f"{update_data.get('Book-Title', book.get('Book-Title',''))} {update_data.get('Book-Author', book.get('Book-Author',''))} {update_data.get('Category', book.get('Category',''))} {update_data.get('Description', book.get('Description',''))}"
+            embedding = generate_embedding(text)
+            await self.embeddingRepo.update(book["ISBN"], embedding)
+
+        return str(obj_id)
+
+    async def delete_book(self, book_id: str):
+        obj_id = ObjectId(book_id)
+        book = await self.bookRepository.get_book_by_id(obj_id)
+        if not book:
+            raise ValueError("Book not found")
+        await self.embeddingRepo.delete(book["ISBN"])
+        deleted_count = await self.bookRepository.delete_book(obj_id)
+        return deleted_count
+
+    async def vector_search(self, query: str, k: int = 5):
         query_embedding = generate_embedding(query)
-
-        pipeline = [
-            {
-                "$vectorSearch": {
-                    "index": "book_vector_index",
-                    "path": "embedding",
-                    "queryVector": query_embedding,
-                    "numCandidates": 100,
-                    "limit": k
-                }
-            },
-            {
-                "$project": {
-                    "_id": {"$toString": "$_id"},
-                    "Book-Title": 1,
-                    "Book-Author": 1,
-                    "Category": 1,
-                    "score": {"$meta": "vectorSearchScore"}
-                }
-            }
-        ]
-
-        results = await self.bookRepository.aggregate(pipeline)
-        return results
+        return await self.embeddingRepo.vector_search(query_embedding, k)
