@@ -3,14 +3,14 @@ from bson import ObjectId
 import jwt
 
 from app.repository.userRepo import UserRepository
-from app.models.user import UserCreate, UserUpdate, UserResponse, Preferences
+from app.models.user import UserCreate, UserUpdate, UserResponse
 from app.utils.security import pwd_context  # bcrypt context
-
 from app.config.settings import settings
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+
 
 class UserService:
     def __init__(self, mongoClient):
@@ -57,9 +57,6 @@ class UserService:
         user_dict = user_data.dict(by_alias=True, exclude={"password"})
         user_dict.update({
             "password_hash": hashed_pw,
-            "wishlist": [],
-            "recommendations": [],
-            "readingHistory": [],
             "admin_status": False,
             "createdAt": now,
             "updatedAt": now,
@@ -68,9 +65,15 @@ class UserService:
         return await self.userRepository.insert_user(user_dict)
 
     async def login_user(self, username: str, password: str) -> dict:
-        user = await self.userRepository.find_user_by_username(username)
+        user = await self.userRepository.find_user_by_username(username, include_password=True)
         if not user or not self.verify_password(password, user.password_hash):
             raise ValueError("Invalid credentials")
+
+        token = self.create_access_token(
+            {"sub": str(user.id), "username": user.username, "admin": user.admin_status}
+        )
+        return {"access_token": token, "token_type": "bearer"}
+
 
         token = self.create_access_token(
             {"sub": str(user.id), "username": user.username, "admin": user.admin_status}
@@ -85,12 +88,6 @@ class UserService:
         if not data:
             raise ValueError("No data provided for update")
         return await self.userRepository.update_user(user_id, data)
-
-    async def update_user_wishlist(self, user_id: str, book_id: str) -> UserResponse:
-        return await self.userRepository.update_user_wishlist(user_id, book_id)
-
-    async def update_user_favorites(self, user_id: str, book_id: str) -> UserResponse:
-        return await self.userRepository.update_user_favorites(user_id, book_id)
-
-    async def add_reading_history(self, user_id: str, history_item: dict) -> UserResponse:
-        return await self.userRepository.add_reading_history(user_id, history_item)
+    
+    async def logout_user(self) -> dict:
+        return {"message": "User logged out. Please remove the token on client side."}

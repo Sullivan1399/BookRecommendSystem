@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.utils.dependencies import get_book_service,  get_current_admin
 from app.services.bookService import BookServices
@@ -10,6 +10,15 @@ router = APIRouter()
 @router.get("/", response_model=list[BookResponse])
 async def get_all(bookServices: BookServices = Depends(get_book_service)):
     return await bookServices.get_all()
+
+@router.get("/page", response_model=list[BookResponse])
+async def get_books_paginated(
+    page: int = 1, 
+    limit: int = 10, 
+    bookServices: BookServices = Depends(get_book_service)
+):
+    return await bookServices.get_books_paginated(page, limit)
+
 
 @router.get("/search", response_model=list[BookResponse])
 async def search(field: str, value: str,
@@ -33,3 +42,7 @@ async def delete(book_id: str,
                  bookServices: BookServices = Depends(get_book_service)):
     deleted_count = await bookServices.delete_book(book_id)
     return {"deleted_count": deleted_count}
+@router.get("/vector_search", response_model=list[BookResponse])
+async def vector_search(query: str, k: int = 5,
+                        bookServices: BookServices = Depends(get_book_service)):
+    return await bookServices.vector_search(query, k)
