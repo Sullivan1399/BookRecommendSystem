@@ -17,6 +17,10 @@ import ManageUser from "./pages/admin/ManageUser";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import GenreSurvey from "./pages/GenreSurvey";
 import BooksSearchResultPage from "./pages/shop/BookSearchResultPage";
+import FavoriteGenrePage from "./pages/FavoritesGenrePage";
+import FavoriteGenresListPage from "./pages/profile/FavoriteGenresListPage";
+import AdminRoute from "./components/AdminRoute";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -24,12 +28,14 @@ function App() {
       <div>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/choose-genres" element={<FavoriteGenrePage/>}/>
           <Route path="/" element={<HomePageLayout />}>
             <Route path="survey" element={<GenreSurvey />} />
             <Route index element={<HomePage />} />
             <Route path="/profile" element={<ProfileLayout />}>
               <Route path="favorite-books" element={<FavoriteBooksPage />} />
               <Route index element={<InfoPage />} />
+              <Route path="genre" element={<FavoriteGenresListPage />} />
               <Route path="edit" element={<EditProfile />} />
               <Route path="orders" element={<OrdersPage />} />
               <Route path="settings" element={<SettingsPage />} />
@@ -38,14 +44,18 @@ function App() {
             <Route path="/books" element={<BookListLayout />}>
               <Route path="list" element={<BooksListPage />} />
               <Route path="search" element={<BooksSearchResultPage />} />
+              <Route path="search-vector" element={<BooksSearchResultPage />} />
               <Route path="details" element={<BookDetails />} />
             </Route>
           </Route>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="manage-books" element={<ManageBook />} />
-            <Route path="manage-users" element={<ManageUser />} />
+              <Route index element={
+              <AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="manage-books" element={<AdminRoute><ManageBook /></AdminRoute>} />
+              <Route path="manage-users" element={<AdminRoute><ManageUser /></AdminRoute>} />
           </Route>
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </Router>

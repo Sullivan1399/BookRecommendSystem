@@ -64,4 +64,5 @@ class BookServices():
 
     async def vector_search(self, query: str, k: int = 5):
         query_embedding = generate_embedding(query)
-        return await self.embeddingRepo.vector_search(query_embedding, k)
+        results = await self.embeddingRepo.vector_search(query_embedding, k)
+        return [BookResponse(**r) for r in results] 

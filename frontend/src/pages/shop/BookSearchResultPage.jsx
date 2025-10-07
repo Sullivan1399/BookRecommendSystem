@@ -1,5 +1,12 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Select, Input, Button, Divider, Card, notification } from "antd";
+import {
+  Select,
+  Input,
+  Button,
+  Divider,
+  Card,
+  notification,
+} from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   SearchOutlined,
@@ -8,7 +15,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import BookCard from "../../components/BookCard";
-import { searchBooks } from "../../api/books"; // Import từ api.js
+import { searchBooks, searchNormalBooks } from "../../api/books"; // 🟢 import cả 2 API
 
 const { Search } = Input;
 
@@ -25,43 +32,68 @@ const SORT_OPTIONS = [
 const BooksSearchResultPage = () => {
   const [books, setBooks] = useState([]);
   const [value, setValue] = useState("");
-  const [field, setField] = useState("Book-Title"); // Mặc định search theo title
+  const [field, setField] = useState("Book-Title");
   const [sortBy, setSortBy] = useState("title-asc");
   const [view, setView] = useState("grid");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Lấy value từ URL nếu có (ví dụ: từ navigation)
+  // 🟢 Phân biệt giữa search thường và search vector
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const query = params.get("query") || "";
     const k = params.get("k") || 5;
-  
+    const isVectorSearch = location.pathname.includes("search-vector");
+
     if (query) {
-      fetchBooks(query, k);
+      if (isVectorSearch) {
+        fetchVectorBooks(query, k);
+      } else {
+        fetchNormalBooks(field, query);
+      }
     }
-  }, [location.search]);
-  
-  const fetchBooks = async (query, k) => {
+  }, [location.search, location.pathname]);
+
+  // 🔹 Vector Search
+  const fetchVectorBooks = async (query, k = 5) => {
     setLoading(true);
     try {
       const data = await searchBooks(query, k);
       setBooks(data);
+      setValue(query);
     } catch (error) {
       notification.error({
-        message: "Lỗi tìm kiếm",
+        message: "Lỗi tìm kiếm vector",
+        description: "Không thể tải kết quả tìm kiếm vector.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Normal Search
+  const fetchNormalBooks = async (field, value) => {
+    setLoading(true);
+    try {
+      const data = await searchNormalBooks(field, value);
+      setBooks(data);
+      setValue(value);
+    } catch (error) {
+      notification.error({
+        message: "Lỗi tìm kiếm thường",
         description: "Không thể tải kết quả tìm kiếm.",
       });
     } finally {
       setLoading(false);
     }
   };
-  
+
+  // 🔍 Khi người dùng search từ sidebar
   const handleSearch = (val) => {
     setValue(val);
     if (val.trim()) {
-      fetchBooks(field, val);
+      fetchNormalBooks(field, val);
     } else {
       setBooks([]);
     }
@@ -73,36 +105,22 @@ const BooksSearchResultPage = () => {
 
   const normalized = (s) => (s || "").toString().toLowerCase();
 
+  // 🧠 Sắp xếp local
   const filteredAndSorted = useMemo(() => {
-    // Vì API đã filter, chỉ cần sort local
     const sorted = [...books].sort((a, b) => {
       switch (sortBy) {
         case "title-asc":
-          return normalized(a["Book-Title"]).localeCompare(
-            normalized(b["Book-Title"])
-          );
+          return normalized(a["Book-Title"]).localeCompare(normalized(b["Book-Title"]));
         case "title-desc":
-          return normalized(b["Book-Title"]).localeCompare(
-            normalized(a["Book-Title"])
-          );
+          return normalized(b["Book-Title"]).localeCompare(normalized(a["Book-Title"]));
         case "author-asc":
-          return normalized(a["Book-Author"]).localeCompare(
-            normalized(b["Book-Author"])
-          );
+          return normalized(a["Book-Author"]).localeCompare(normalized(b["Book-Author"]));
         case "author-desc":
-          return normalized(b["Book-Author"]).localeCompare(
-            normalized(a["Book-Author"])
-          );
+          return normalized(b["Book-Author"]).localeCompare(normalized(a["Book-Author"]));
         case "year-newest":
-          return (
-            Number(b["Year-Of-Publication"] || 0) -
-            Number(a["Year-Of-Publication"] || 0)
-          );
+          return Number(b["Year-Of-Publication"] || 0) - Number(a["Year-Of-Publication"] || 0);
         case "year-oldest":
-          return (
-            Number(a["Year-Of-Publication"] || 0) -
-            Number(b["Year-Of-Publication"] || 0)
-          );
+          return Number(a["Year-Of-Publication"] || 0) - Number(b["Year-Of-Publication"] || 0);
         case "publisher-asc":
           return normalized(a.Publisher).localeCompare(normalized(b.Publisher));
         default:
@@ -205,9 +223,7 @@ const BooksSearchResultPage = () => {
                         onClick={() => setView("grid")}
                         type={view === "grid" ? "primary" : "default"}
                         icon={<AppstoreOutlined />}
-                        className={
-                          view === "grid" ? "bg-black border-black" : ""
-                        }
+                        className={view === "grid" ? "bg-black border-black" : ""}
                       >
                         Lưới
                       </Button>
@@ -215,9 +231,7 @@ const BooksSearchResultPage = () => {
                         onClick={() => setView("list")}
                         type={view === "list" ? "primary" : "default"}
                         icon={<UnorderedListOutlined />}
-                        className={
-                          view === "list" ? "bg-black border-black" : ""
-                        }
+                        className={view === "list" ? "bg-black border-black" : ""}
                       >
                         Danh sách
                       </Button>
@@ -242,20 +256,16 @@ const BooksSearchResultPage = () => {
 
           {/* Main Content */}
           <main className="lg:col-span-3">
-            {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-sm text-gray-600">
-                  Tìm thấy{" "}
-                  <span className="font-semibold text-black">
-                    {filteredAndSorted.length}
-                  </span>{" "}
-                  kết quả
-                </p>
-              </div>
+              <p className="text-sm text-gray-600">
+                Tìm thấy{" "}
+                <span className="font-semibold text-black">
+                  {filteredAndSorted.length}
+                </span>{" "}
+                kết quả
+              </p>
             </div>
 
-            {/* Results */}
             {loading ? (
               <div className="py-16 text-center">Đang tải...</div>
             ) : filteredAndSorted.length === 0 ? (

@@ -13,105 +13,137 @@ import {
   Badge,
 } from "antd";
 
+import {
+  BookOutlined,
+  SmileOutlined,
+  MoneyCollectOutlined,
+  RocketOutlined,
+  BulbOutlined,
+  HistoryOutlined,
+  CodeOutlined,
+  TeamOutlined,
+  ThunderboltOutlined,
+  SafetyOutlined,
+  DollarCircleOutlined,
+} from "@ant-design/icons";
+
+import BookCard from "../components/BookCard";
+
 const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 
 const HomePage = () => {
   const [hoveredBook, setHoveredBook] = useState(null);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
 
   // Dữ liệu mẫu cho sách nổi bật
   const featuredBooks = [
     {
-      id: 1,
-      title: "Đắc Nhân Tâm",
-      author: "Dale Carnegie",
-      price: "89,000",
-      originalPrice: "120,000",
-      image:
+      bookId: 1,
+      bookTitle: "Đắc Nhân Tâm",
+      bookAuthor: "Dale Carnegie",
+      yearOfPublication: 1936,
+      publisher: "Simon & Schuster",
+      imageUrlL:
         "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-      rating: 4.8,
-      reviews: 1250,
-      discount: 26,
-      category: "Kỹ năng sống",
     },
     {
-      id: 2,
-      title: "Sapiens: Lược Sử Loài Người",
-      author: "Yuval Noah Harari",
-      price: "156,000",
-      originalPrice: "195,000",
-      image:
-        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop",
-      rating: 4.9,
-      reviews: 986,
-      discount: 20,
-      category: "Lịch sử",
+      bookId: 2,
+      bookTitle: "Đắc Nhân Tâm",
+      bookAuthor: "Dale Carnegie",
+      yearOfPublication: 1936,
+      publisher: "Simon & Schuster",
+      imageUrlL:
+        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
     },
     {
-      id: 3,
-      title: "Atomic Habits",
-      author: "James Clear",
-      price: "132,000",
-      originalPrice: "165,000",
-      image:
-        "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop",
-      rating: 4.7,
-      reviews: 2103,
-      discount: 20,
-      category: "Tự phát triển",
+      bookId: 3,
+      bookTitle: "Đắc Nhân Tâm",
+      bookAuthor: "Dale Carnegie",
+      yearOfPublication: 1936,
+      publisher: "Simon & Schuster",
+      imageUrlL:
+        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
     },
     {
-      id: 4,
-      title: "Thinking, Fast and Slow",
-      author: "Daniel Kahneman",
-      price: "143,000",
-      originalPrice: "178,000",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop",
-      rating: 4.6,
-      reviews: 754,
-      discount: 20,
-      category: "Tâm lý học",
+      bookId: 4,
+      bookTitle: "Đắc Nhân Tâm",
+      bookAuthor: "Dale Carnegie",
+      yearOfPublication: 1936,
+      publisher: "Simon & Schuster",
+      imageUrlL:
+        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
     },
     {
-      id: 5,
-      title: "The 7 Habits of Highly Effective People",
-      author: "Stephen R. Covey",
-      price: "124,000",
-      originalPrice: "155,000",
-      image:
-        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=300&h=400&fit=crop",
-      rating: 4.8,
-      reviews: 1876,
-      discount: 20,
-      category: "Kỹ năng sống",
+      bookId: 5,
+      bookTitle: "Đắc Nhân Tâm",
+      bookAuthor: "Dale Carnegie",
+      yearOfPublication: 1936,
+      publisher: "Simon & Schuster",
+      imageUrlL:
+        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
     },
     {
-      id: 6,
-      title: "Dune",
-      author: "Frank Herbert",
-      price: "167,000",
-      originalPrice: "209,000",
-      image:
-        "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop",
-      rating: 4.5,
-      reviews: 623,
-      discount: 20,
-      category: "Khoa học viễn tưởng",
+      bookId: 6,
+      bookTitle: "Đắc Nhân Tâm",
+      bookAuthor: "Dale Carnegie",
+      yearOfPublication: 1936,
+      publisher: "Simon & Schuster",
+      imageUrlL:
+        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
     },
   ];
 
-  // Danh mục sách
   const categories = [
-    "Văn học",
-    "Kỹ năng sống",
-    "Kinh tế",
-    "Lịch sử",
-    "Khoa học",
-    "Tâm lý học",
-    "Công nghệ",
-    "Thiếu nhi",
+    {
+      name: "Văn học",
+      icon: <BookOutlined style={{ fontSize: 32 }} />,
+      color: "#1890ff",
+      count: "1,234",
+    },
+    {
+      name: "Kỹ năng sống",
+      icon: <SmileOutlined style={{ fontSize: 32 }} />,
+      color: "#52c41a",
+      count: "856",
+    },
+    {
+      name: "Kinh tế",
+      icon: <MoneyCollectOutlined style={{ fontSize: 32 }} />,
+      color: "#faad14",
+      count: "672",
+    },
+    {
+      name: "Lịch sử",
+      icon: <HistoryOutlined style={{ fontSize: 32 }} />,
+      color: "#722ed1",
+      count: "543",
+    },
+    {
+      name: "Khoa học",
+      icon: <BulbOutlined style={{ fontSize: 32 }} />,
+      color: "#fa541c",
+      count: "789",
+    },
+    {
+      name: "Tâm lý học",
+      icon: <TeamOutlined style={{ fontSize: 32 }} />,
+      color: "#eb2f96",
+      count: "421",
+    },
+    {
+      name: "Công nghệ",
+      icon: <CodeOutlined style={{ fontSize: 32 }} />,
+      color: "#13c2c2",
+      count: "956",
+    },
+    {
+      name: "Thiếu nhi",
+      icon: <RocketOutlined style={{ fontSize: 32 }} />,
+      color: "#f759ab",
+      count: "1,089",
+    },
   ];
 
   // Banner carousel data
@@ -121,19 +153,19 @@ const HomePage = () => {
       subtitle: "Giảm giá lên đến 50% cho tất cả sách",
       description:
         "Cơ hội tuyệt vời để sở hữu những cuốn sách hay với giá ưu đãi",
-      bgColor: "bg-black",
+      bgColor: "bg-white",
     },
     {
       title: "Sách Mới Về Kho",
       subtitle: "Hàng trăm đầu sách mới nhất 2024",
       description: "Cập nhật những cuốn sách hot nhất hiện tại",
-      bgColor: "bg-gray-800",
+      bgColor: "bg-white",
     },
     {
       title: "Miễn Phí Vận Chuyển",
       subtitle: "Cho đơn hàng từ 200,000đ",
       description: "Giao hàng nhanh chóng trên toàn quốc",
-      bgColor: "bg-gray-900",
+      bgColor: "bg-white",
     },
   ];
 
@@ -141,43 +173,39 @@ const HomePage = () => {
     <Layout className="min-h-screen w-full bg-white">
       <Content>
         {/* Hero Banner */}
-        <div className="bg-gray-50">
+        <div className="bg-white">
           <Carousel autoplay className="h-96">
             {bannerData.map((banner, index) => (
               <div key={index}>
-                <div
-                  className={`${banner.bgColor} h-96 flex items-center justify-center text-white relative overflow-hidden`}
-                >
+                <div className="bg-white h-96 flex items-center justify-center text-black relative overflow-hidden">
                   <div className="text-center max-w-4xl mx-auto px-8 z-10">
                     <Title
                       level={1}
-                      className="!text-white !mb-4 text-5xl font-bold"
+                      className="!text-black !mb-4 text-5xl font-bold"
                     >
                       {banner.title}
                     </Title>
-                    <Title level={3} className="!text-gray-300 !mb-6">
+                    <Title level={3} className="!text-black !mb-6">
                       {banner.subtitle}
                     </Title>
-                    <Paragraph className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+                    <Paragraph className="text-black text-lg mb-8 max-w-2xl mx-auto">
                       {banner.description}
                     </Paragraph>
                     <Space size="middle">
                       <Button
                         size="large"
                         type="primary"
-                        className="bg-white text-black border-white hover:bg-gray-100 px-8 py-6 h-auto text-base font-medium"
+                        className="bg-black text-white border-black hover:bg-white hover:text-black px-8 py-6 h-auto text-base font-medium"
                       >
                         Mua ngay
                       </Button>
                       <Button
                         size="large"
-                        className="border-white text-white hover:bg-white hover:text-black px-8 py-6 h-auto text-base font-medium"
+                        className="border-black text-black hover:bg-black hover:text-white px-8 py-6 h-auto text-base font-medium"
                       >
-                        Xem thêm
-                      </Button>
+                        Xem thêm</Button>
                     </Space>
                   </div>
-                  <div className="absolute inset-0 bg-black bg-opacity-20"></div>
                 </div>
               </div>
             ))}
@@ -185,123 +213,100 @@ const HomePage = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          {/* Categories Section */}
-          <div className="py-16">
-            <Title level={2} className="text-center mb-12 text-black">
-              Danh Mục Sách
-            </Title>
-            <Row gutter={[16, 16]}>
-              {categories.map((category, index) => (
+          {/* Categories Section - IMPROVED */}
+          <div className="py-20 bg-gradient-to-b from-white to-gray-50">
+            <div className="text-center mb-16">
+              <Title level={2} className="!text-black !mb-3 text-4xl font-bold">
+                Khám Phá Theo Danh Mục
+              </Title>
+              <Paragraph className="text-gray-600 text-lg max-w-2xl mx-auto">
+                Tìm kiếm cuốn sách yêu thích của bạn trong các danh mục đa dạng
+              </Paragraph>
+            </div>
+
+            <Row gutter={[24, 24]} className="px-4">
+              {categories.map((cat, index) => (
                 <Col xs={12} sm={8} md={6} lg={3} key={index}>
-                  <div className="text-center p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-black group">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center group-hover:bg-black transition-colors">
-                      <div className="w-8 h-8 bg-gray-400 rounded group-hover:bg-white transition-colors"></div>
+                  <div
+                    className="relative group cursor-pointer"
+                    onMouseEnter={() => setHoveredCategory(index)}
+                    onMouseLeave={() => setHoveredCategory(null)}
+                  >
+                    <div
+                      className="bg-white rounded-2xl p-6 border-2 border-gray-100 transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2 hover:border-transparent overflow-hidden"
+                      style={{
+                        borderColor:
+                          hoveredCategory === index ? cat.color : undefined,
+                      }}
+                    >
+                      {/* Background gradient on hover */}
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                        style={{
+                          background: `linear-gradient(135deg, ${cat.color} 0%, transparent 100%)`,
+                        }}
+                      />
+
+                      {/* Icon container */}
+                      <div
+                        className="relative w-20 h-20 rounded-xl mx-auto mb-4 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                        style={{
+                          backgroundColor:
+                            hoveredCategory === index ? cat.color : "#f5f5f5",
+                          color:
+                            hoveredCategory === index ? "white" : cat.color,
+                        }}
+                      >
+                        {cat.icon}
+                      </div>
+
+                      {/* Category name */}
+                      <Text className="block font-semibold text-base text-gray-800 mb-2 text-center">
+                        {cat.name}
+                      </Text>
+
+                      {/* Book count */}
+                      <div className="text-center"><Text className="text-sm text-gray-500">
+                          {cat.count} cuốn
+                        </Text>
+                      </div>
+
+                      {/* Hover arrow indicator */}
+                      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span
+                          className="text-xl font-bold"
+                          style={{ color: cat.color }}
+                        >
+                          →
+                        </span>
+                      </div>
                     </div>
-                    <Text className="font-medium text-black group-hover:text-black">
-                      {category}
-                    </Text>
                   </div>
                 </Col>
               ))}
             </Row>
+
+            {/* View all categories button */}
+            <div className="text-center mt-12">
+              <Button
+                size="large"
+                className="border-2 border-black text-black hover:bg-black hover:text-white px-10 py-6 h-auto text-base font-medium rounded-full transition-all duration-300"
+              >
+                Xem Tất Cả Danh Mục →
+              </Button>
+            </div>
           </div>
 
           <Row gutter={[24, 24]}>
             {featuredBooks.map((book) => (
-              <Col xs={12} sm={8} md={6} lg={4} key={book.id}>
-                <div className="h-full flex">
-                  <Card
-                    hoverable
-                    className="flex flex-col w-full border-gray-200 hover:shadow-lg transition-shadow duration-300"
-                    cover={
-                      <div className="relative overflow-hidden h-64">
-                        <img
-                          alt={book.title}
-                          src={book.image}
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                        />
-                        {book.discount > 0 && (
-                          <Badge.Ribbon
-                            text={`-${book.discount}%`}
-                            color="red"
-                            className="absolute top-2 right-2"
-                          />
-                        )}
-                      </div>
-                    }
-                    bodyStyle={{
-                      padding: "16px",
-                      display: "flex",
-                      flexDirection: "column",
-                      flexGrow: 1,
-                    }}
-                    onMouseEnter={() => setHoveredBook(book.id)}
-                    onMouseLeave={() => setHoveredBook(null)}
-                  >
-                    {/* Nội dung Card */}
-                    <div className="flex flex-col h-full">
-                      <Text className="text-xs text-gray-500 mb-2">
-                        {book.category}
-                      </Text>
-                      <Title
-                        level={5}
-                        className="!mb-2 line-clamp-2 text-black"
-                      >
-                        {book.title}
-                      </Title>
-                      <Text className="text-gray-600 mb-3 text-sm">
-                        {book.author}
-                      </Text>
-
-                      <div className="mb-3">
-                        <Rate
-                          disabled
-                          defaultValue={book.rating}
-                          className="text-xs"
-                        />
-                        <Text className="text-gray-500 ml-2 text-xs">
-                          ({book.reviews})
-                        </Text>
-                      </div>
-
-                      <div className="mt-auto">
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <Text className="text-lg font-bold text-black">
-                              {book.price}đ
-                            </Text>
-                            {book.originalPrice && (
-                              <Text
-                                delete
-                                className="text-gray-500 ml-2 text-sm"
-                              >
-                                {book.originalPrice}đ
-                              </Text>
-                            )}
-                          </div>
-                        </div>
-
-                        <Button
-                          type="primary"
-                          block
-                          className={`bg-black border-black hover:bg-gray-800 transition-all duration-300 ${
-                            hoveredBook === book.id
-                              ? "transform -translate-y-1"
-                              : ""
-                          }`}
-                        >
-                          Thêm vào giỏ
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
+              <Col xs={12} sm={8} md={6} lg={4} key={book.bookId}>
+                <BookCard book={book} />
               </Col>
             ))}
           </Row>
 
           {/* Features Section */}
-          <div className="py-16 bg-gray-50 -mx-4 lg:-mx-8 px-4 lg:px-8">
+          <div className="py-16 bg-white -mx-4 lg:-mx-8 px-4 lg:px-8">
             <div className="max-w-7xl mx-auto">
               <Title level={2} className="text-center mb-12 text-black">
                 Tại Sao Chọn Chúng Tôi?
@@ -309,13 +314,13 @@ const HomePage = () => {
               <Row gutter={[32, 32]}>
                 <Col xs={24} md={8}>
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-black rounded-full mx-auto mb-6 flex items-center justify-center">
-                      <div className="w-10 h-10 bg-white rounded"></div>
+                    <div className="w-20 h-20 bg-black rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl">
+                      <RocketOutlined />
                     </div>
                     <Title level={4} className="mb-4 text-black">
                       Giao Hàng Nhanh
                     </Title>
-                    <Paragraph className="text-gray-600">
+                    <Paragraph className="text-black">
                       Giao hàng trong 24h tại TP.HCM và Hà Nội. Miễn phí ship
                       cho đơn hàng trên 200,000đ.
                     </Paragraph>
@@ -323,27 +328,26 @@ const HomePage = () => {
                 </Col>
                 <Col xs={24} md={8}>
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-black rounded-full mx-auto mb-6 flex items-center justify-center">
-                      <div className="w-10 h-10 bg-white rounded"></div>
+                    <div className="w-20 h-20 bg-black rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl">
+                      <SafetyOutlined />
                     </div>
                     <Title level={4} className="mb-4 text-black">
                       Chất Lượng Đảm Bảo
                     </Title>
-                    <Paragraph className="text-gray-600">
-                      100% sách chính hãng, bảo hành đổi trả trong 7 ngày nếu có
+                    <Paragraph className="text-black">100% sách chính hãng, bảo hành đổi trả trong 7 ngày nếu có
                       lỗi từ nhà sản xuất.
                     </Paragraph>
                   </div>
                 </Col>
                 <Col xs={24} md={8}>
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-black rounded-full mx-auto mb-6 flex items-center justify-center">
-                      <div className="w-10 h-10 bg-white rounded"></div>
+                    <div className="w-20 h-20 bg-black rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl">
+                      <DollarCircleOutlined />
                     </div>
                     <Title level={4} className="mb-4 text-black">
                       Giá Tốt Nhất
                     </Title>
-                    <Paragraph className="text-gray-600">
+                    <Paragraph className="text-black">
                       Cam kết giá tốt nhất thị trường. Hoàn tiền nếu bạn tìm
                       thấy giá rẻ hơn ở nơi khác.
                     </Paragraph>
@@ -355,24 +359,24 @@ const HomePage = () => {
 
           {/* Newsletter Section */}
           <div className="py-16">
-            <div className="bg-black text-white rounded-2xl p-12 text-center">
-              <Title level={2} className="!text-white mb-4">
+            <div className="bg-white text-black border border-black rounded-2xl p-12 text-center">
+              <Title level={2} className="!text-black mb-4">
                 Đăng Ký Nhận Tin
               </Title>
-              <Paragraph className="text-gray-300 mb-8 max-w-2xl mx-auto">
+              <Paragraph className="text-black mb-8 max-w-2xl mx-auto">
                 Nhận thông báo về sách mới, khuyến mãi đặc biệt và các sự kiện
                 thú vị từ cửa hàng sách của chúng tôi.
               </Paragraph>
               <div className="flex max-w-md mx-auto">
                 <Input
                   placeholder="Nhập email của bạn"
-                  className="rounded-r-none"
+                  className="rounded-r-none border-black"
                   size="large"
                 />
                 <Button
                   type="primary"
                   size="large"
-                  className="bg-white text-black border-white hover:bg-gray-100 rounded-l-none"
+                  className="bg-black text-white border-black hover:bg-white hover:text-black rounded-l-none"
                 >
                   Đăng ký
                 </Button>
@@ -383,116 +387,115 @@ const HomePage = () => {
       </Content>
 
       {/* Footer */}
-      <Footer className="bg-black text-white">
+      <Footer className="bg-white text-black border-t border-black">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <Row gutter={[32, 32]}>
             <Col xs={24} md={6}>
-              <Title level={4} className="!text-white mb-4">
+              <Title level={4} className="!text-black mb-4">
                 BookStore
               </Title>
-              <Paragraph className="text-gray-300">
+              <Paragraph className="text-black">
                 Cửa hàng sách trực tuyến hàng đầu Việt Nam với hàng ngàn đầu
                 sách chất lượng cao.
               </Paragraph>
             </Col>
             <Col xs={12} md={6}>
-              <Title level={5} className="!text-white mb-4">
+              <Title level={5} className="!text-black mb-4">
                 Liên kết
               </Title>
               <div className="space-y-2">
                 <div>
                   <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Về chúng tôi
-                  </a>
+                    href="#"className="text-black hover:text-black hover:underline"
+                    >
+                      Về chúng tôi
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href="#"
+                      className="text-black hover:text-black hover:underline"
+                    >
+                      Danh mục sách
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href="#"
+                      className="text-black hover:text-black hover:underline"
+                    >
+                      Khuyến mãi
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href="#"
+                      className="text-black hover:text-black hover:underline"
+                    >
+                      Blog
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Danh mục sách
-                  </a>
+              </Col>
+              <Col xs={12} md={6}>
+                <Title level={5} className="!text-black mb-4">
+                  Hỗ trợ
+                </Title>
+                <div className="space-y-2">
+                  <div>
+                    <a
+                      href="#"
+                      className="text-black hover:text-black hover:underline"
+                    >
+                      Liên hệ
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href="#"
+                      className="text-black hover:text-black hover:underline"
+                    >
+                      Câu hỏi thường gặp
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href="#"
+                      className="text-black hover:text-black hover:underline"
+                    >
+                      Chính sách đổi trả
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href="#"
+                      className="text-black hover:text-black hover:underline"
+                    >
+                      Hướng dẫn mua hàng
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Khuyến mãi
-                  </a>
+              </Col>
+              <Col xs={24} md={6}>
+                <Title level={5} className="!text-black mb-4">
+                  Liên hệ
+                </Title>
+                <div className="space-y-2 text-black">
+                  <div>📍 123 Đường ABC, Quận 1, TP.HCM</div>
+                  <div>📞 (028) 1234 5678</div>
+                  <div>✉️ hello@bookstore.vn</div>
                 </div>
-                <div>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Blog
-                  </a>
-                </div>
-              </div>
-            </Col>
-            <Col xs={12} md={6}>
-              <Title level={5} className="!text-white mb-4">
-                Hỗ trợ
-              </Title>
-              <div className="space-y-2">
-                <div>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Liên hệ
-                  </a>
-                </div>
-                <div>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Câu hỏi thường gặp
-                  </a>
-                </div>
-                <div>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Chính sách đổi trả
-                  </a>
-                </div>
-                <div>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Hướng dẫn mua hàng
-                  </a>
-                </div>
-              </div>
-            </Col>
-            <Col xs={24} md={6}>
-              <Title level={5} className="!text-white mb-4">
-                Liên hệ
-              </Title>
-              <div className="space-y-2 text-gray-300">
-                <div>📍 123 Đường ABC, Quận 1, TP.HCM</div>
-                <div>📞 (028) 1234 5678</div>
-                <div>✉️ hello@bookstore.vn</div>
-              </div>
-            </Col>
-          </Row>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-            <Text className="text-gray-400">
-              © 2024 BookStore. Tất cả quyền được bảo lưu.
-            </Text>
+              </Col>
+            </Row>
+            <div className="border-t border-black mt-12 pt-8 text-center">
+              <Text className="text-black">
+                © 2024 BookStore. Tất cả quyền được bảo lưu.
+              </Text>
+            </div>
           </div>
-        </div>
-      </Footer>
-    </Layout>
-  );
-};
-
-export default HomePage;
+        </Footer>
+      </Layout>
+    );
+  };
+  
+  export default HomePage;

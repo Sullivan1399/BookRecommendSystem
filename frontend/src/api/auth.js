@@ -2,27 +2,34 @@ import { jwtDecode } from "jwt-decode"; // nhớ import jwtDecode
 
 const API_URL = "http://127.0.0.1:8000/users";
 export const register = async (userData) => {
-    console.log(userData)
-    try {
-      const response = await fetch(`${API_URL}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-  
-      if (!response.ok) {
-        const errorData = response.json();
-        throw new Error(errorData.detail || "Đăng ký thất bại"); // backend trả "detail"
-      }
-      console.log(response.json())
-      return response.json(); // trả về user object
-    } catch (error) {
-      console.error("Register error:", error.message);
-      throw error;
+  try {
+    const response = await fetch(`${API_URL}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Đăng ký thất bại");
     }
-  };
+
+    // ✅ lưu user_id vào localStorage để dùng sau
+    if (data._id) {
+      localStorage.setItem("user_id", data._id);
+    }
+
+    return data; // trả về user object
+  } catch (error) {
+    console.error("Register error:", error.message);
+    throw error;
+  }
+};
+
+
   
 
 // Hàm login

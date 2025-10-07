@@ -36,7 +36,9 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-
+.ant-notification {
+  z-index: 3000 !important;
+}
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

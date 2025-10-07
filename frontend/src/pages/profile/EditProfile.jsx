@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Card, Avatar, Form, Input, Button, DatePicker, message } from "antd";
+import {
+  Card,
+  Avatar,
+  Form,
+  Input,
+  Button,
+  InputNumber,
+  Select,
+  message,
+} from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-dayjs.extend(customParseFormat);
-
 import { updateProfile } from "../../api/profile";
 
-const { TextArea } = Input;
+const { Option } = Select;
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -19,61 +24,39 @@ const EditProfile = () => {
   const [userData, setUserData] = useState(initialUserData || {});
 
   useEffect(() => {
-    // keep local userData for avatar/title rendering
     setUserData(initialUserData || {});
 
-    // prepare values for the form, convert dob to dayjs or null
-    const formValues = {
+    // ✅ Gán giá trị ban đầu vào form
+    form.setFieldsValue({
       fullName: initialUserData?.fullName || "",
-      email: initialUserData?.email || "",
-      phone: initialUserData?.phone || "",
-      address: initialUserData?.address || "",
-      dob: null, // ensure DatePicker never receives an empty string
-    };
-
-    const dobValue = initialUserData?.dob;
-    if (dobValue && dobValue !== "Chưa cập nhật") {
-      // first try strict parse with expected format, then fallback to generic parse
-      let parsed = dayjs(dobValue, "YYYY-MM-DD", true);
-      if (!parsed.isValid()) {
-        parsed = dayjs(dobValue); // fallback (ISO / timestamp)
-      }
-      if (parsed.isValid()) {
-        formValues.dob = parsed;
-      } else {
-        console.warn("Invalid dob format, leaving as null:", dobValue);
-      }
-    }
-
-    // set fields AFTER we've converted dob to dayjs or null
-    form.setFieldsValue(formValues);
+      age: initialUserData?.age || "",
+      gender: initialUserData?.gender || "khác",
+    });
   }, [initialUserData, form]);
 
   const onFinish = async (values) => {
     try {
       const raw = localStorage.getItem("user");
-      const userId = raw ? JSON.parse(raw).id : null;
+      const parsed = raw ? JSON.parse(raw) : {};
+      const userId = parsed._id || parsed.id;
       if (!userId) throw new Error("User ID not found");
 
       const profileData = {
-        fullName: values.fullName || "",
-        email: values.email || "",
-        phone: values.phone || "",
-        address: values.address || "",
-        // send empty string if no dob (keeps same behavior you had); change to null if backend prefers null
-        dob: values.dob ? values.dob.format("YYYY-MM-DD") : "",
+        fullName: values.fullName,
+        age: Number(values.age),
+        gender: values.gender,
       };
 
       await updateProfile(userId, profileData);
       message.success("Cập nhật hồ sơ thành công!");
-      navigate("/info");
+      navigate("/profile");
     } catch (error) {
       message.error(error?.message || "Cập nhật hồ sơ thất bại");
     }
   };
 
   const onCancel = () => {
-    navigate("/info");
+    navigate("/profile");
   };
 
   return (
@@ -86,18 +69,13 @@ const EditProfile = () => {
           />
           <div>
             <h2 className="text-2xl font-bold text-black">Chỉnh sửa hồ sơ</h2>
+            <p className="text-gray-500">{userData.username}</p>
           </div>
         </div>
       </Card>
 
       <Card className="shadow-sm">
-        {/* removed initialValues prop to avoid passing raw userData (string dob) to DatePicker */}
-        <Form
-          form={form}
-          name="editProfile"
-          onFinish={onFinish}
-          layout="vertical"
-        >
+        <Form form={form} name="editProfile" onFinish={onFinish} layout="vertical">
           <Form.Item
             name="fullName"
             label="Họ và tên"
@@ -107,43 +85,26 @@ const EditProfile = () => {
           </Form.Item>
 
           <Form.Item
-            name="email"
-            label="Email"
+            name="age"
+            label="Tuổi"
             rules={[
-              {
-                required: true,
-                type: "email",
-                message: "Vui lòng nhập email hợp lệ!",
-              },
+              { required: true, message: "Vui lòng nhập tuổi!" },
+              { type: "number", min: 1, max: 100, message: "Tuổi không hợp lệ!" },
             ]}
           >
-            <Input />
+            <InputNumber style={{ width: "100%" }} />
           </Form.Item>
 
           <Form.Item
-            name="phone"
-            label="Số điện thoại"
-            rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
-            ]}
+            name="gender"
+            label="Giới tính"
+            rules={[{ required: true, message: "Vui lòng chọn giới tính!" }]}
           >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="dob"
-            label="Ngày sinh"
-            rules={[{ required: true, message: "Vui lòng chọn ngày sinh!" }]}
-          >
-            <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
-          </Form.Item>
-
-          <Form.Item
-            name="address"
-            label="Địa chỉ"
-            rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
-          >
-            <TextArea rows={4} />
+            <Select placeholder="Chọn giới tính">
+              <Option value="nam">Nam</Option>
+              <Option value="nữ">Nữ</Option>
+              <Option value="khác">Khác</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item>

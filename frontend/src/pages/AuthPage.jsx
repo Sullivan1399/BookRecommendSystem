@@ -118,29 +118,40 @@ const AuthPage = () => {
   
     try {
       const newUser = {
-        username: signupForm.email.split("@")[0], // hoặc cho người dùng nhập username riêng
+        username: signupForm.email.split("@")[0],
         email: signupForm.email,
         fullName: signupForm.fullName,
-        age: 18, // hoặc thêm input cho tuổi
-        gender: "nam", // hoặc thêm select box cho gender
+        age: 18,
+        gender: "nam",
         password: signupForm.password,
       };
   
-      await register(newUser);
-      setMessage("Đăng ký thành công! Vui lòng đăng nhập.");
-      setActiveTab("login");
+      const registeredUser = await register(newUser);
+  
+      if (registeredUser?.id || registeredUser?.user_id) {
+        localStorage.setItem("user_id", registeredUser.id || registeredUser.user_id);
+      }
+
+      setMessage("Đăng ký thành công! Hãy chọn thể loại yêu thích của bạn.");
       setSignupForm({
         fullName: "",
         email: "",
         password: "",
         confirmPassword: "",
       });
+  
+      // ✅ chuyển sang trang chọn thể loại yêu thích
+      navigate("/choose-genres", 
+        {state: {fromSignup: true}}
+      );
     } catch (error) {
-      setMessage(error.message);
+      setMessage(error.message || "Đăng ký thất bại!");
     } finally {
       setIsLoading(false);
     }
   };
+  
+  
   
 
   const handleForgotPassword = async (e) => {

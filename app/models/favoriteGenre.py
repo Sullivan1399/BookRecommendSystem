@@ -12,3 +12,4 @@ class FavoriteGenreCreate(FavoriteGenreBase):
 class FavoriteGenreResponse(FavoriteGenreBase):
     id: Optional[str] = Field(None, alias="_id")
     createdAt: Optional[datetime] = Field(None, alias="createdAt")
+

@@ -4,11 +4,10 @@ from typing import Optional
 
 class FavoriteBookBase(BaseModel):
     user_id: str = Field(..., alias="user_id")
-    isbn: str = Field(..., alias="isbn")
+    book_id: str = Field(..., alias="book_id")
 
 class FavoriteBookCreate(FavoriteBookBase):
     pass
 
 class FavoriteBookResponse(FavoriteBookBase):
     id: Optional[str] = Field(None, alias="_id")
-    createdAt: Optional[datetime] = Field(None, alias="createdAt")

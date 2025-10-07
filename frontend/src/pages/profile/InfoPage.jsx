@@ -6,7 +6,7 @@ const InfoPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
 
-  // Retrieve user data from localStorage
+  // 🟢 Lấy thông tin user từ localStorage
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -17,36 +17,40 @@ const InfoPage = () => {
     }
   }, []);
 
-  // Redirect to login if no user data
+  // 🧭 Nếu chưa đăng nhập → chuyển hướng về trang login
   if (!user.username) {
     navigate("/auth");
-    return null; // Prevent rendering until redirect
+    return null;
   }
 
-  // Fallback values for missing fields
+  // 🟩 Dữ liệu hiển thị (với fallback)
   const userData = {
-    name: user.full_name || "Chưa cập nhật",
+    fullName: user.fullName || "Chưa cập nhật",
+    username: user.username || "Chưa cập nhật",
     email: user.email || "Chưa cập nhật",
-    phone: user.phone || "Chưa cập nhật",
-    address: user.address || "Chưa cập nhật",
-    dob: user.dob || "Chưa cập nhật",
-    avatar: user.avatar || "https://i.pravatar.cc/150?img=3", // Default avatar
+    age: user.age ? `${user.age} tuổi` : "Chưa cập nhật",
+    gender: user.gender || "Chưa cập nhật",
+    avatar: user.avatar || "https://i.pravatar.cc/150?img=3", // Ảnh mặc định
   };
-  const handleEditProfile = async () => {
-    navigate("/profile/edit", { state: { user: userData } });
+
+  const handleEditProfile = () => {
+    // 🧭 Truyền user sang trang chỉnh sửa
+    navigate("/profile/edit", { state: { user } });
   };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Thông tin user */}
+      {/* 🧍‍♂️ Thông tin cơ bản */}
       <Card className="shadow-sm">
         <div className="flex items-center gap-6">
           {/* Avatar */}
           <Avatar size={100} src={userData.avatar} />
 
-          {/* Tên và email */}
+          {/* Họ tên và email */}
           <div>
-            <h2 className="text-2xl font-bold text-black">{userData.name}</h2>
+            <h2 className="text-2xl font-bold text-black">
+              {userData.fullName}
+            </h2>
             <p className="text-gray-600">{userData.email}</p>
             <Button
               type="default"
@@ -59,29 +63,29 @@ const InfoPage = () => {
         </div>
       </Card>
 
-      {/* Chi tiết cá nhân */}
+      {/* 🧾 Chi tiết người dùng */}
       <Card className="shadow-sm">
         <Descriptions
-          title={
-            <span className="text-black font-semibold">Thông tin cá nhân</span>
-          }
+          title={<span className="text-black font-semibold">Thông tin cá nhân</span>}
           bordered
           column={1}
           labelStyle={{ width: "150px", fontWeight: 500, color: "#000" }}
           contentStyle={{ color: "#333" }}
         >
           <Descriptions.Item label="Họ và tên">
-            {userData.name}
+            {userData.fullName}
           </Descriptions.Item>
-          <Descriptions.Item label="Email">{userData.email}</Descriptions.Item>
-          <Descriptions.Item label="Số điện thoại">
-            {userData.phone}
+          <Descriptions.Item label="Tên đăng nhập">
+            {userData.username}
           </Descriptions.Item>
-          <Descriptions.Item label="Ngày sinh">
-            {userData.dob}
+          <Descriptions.Item label="Email">
+            {userData.email}
           </Descriptions.Item>
-          <Descriptions.Item label="Địa chỉ">
-            {userData.address}
+          <Descriptions.Item label="Tuổi">
+            {userData.age}
+          </Descriptions.Item>
+          <Descriptions.Item label="Giới tính">
+            {userData.gender}
           </Descriptions.Item>
         </Descriptions>
       </Card>

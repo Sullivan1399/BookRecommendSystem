@@ -1,160 +1,103 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { Select, Input, Button, Spin , Card } from "antd";
+import React, { useState, useEffect } from "react";
+import { Spin, Pagination, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getBooks } from "../../api/books";  // import API
-
-import {
-  SearchOutlined,
-  AppstoreOutlined,
-  UnorderedListOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
+import { getBooksPaginated } from "../../api/books";
+import { getFavoriteBooks } from "../../api/favorites";
 import BookCard from "../../components/BookCard";
-
-const { Search } = Input;
-
-const SORT_OPTIONS = [
-  { value: "title-asc", label: "Tiêu đề: A → Z" },
-  { value: "title-desc", label: "Tiêu đề: Z → A" },
-  { value: "author-asc", label: "Tác giả: A → Z" },
-  { value: "author-desc", label: "Tác giả: Z → A" },
-  { value: "year-newest", label: "Năm xuất bản: Mới → Cũ" },
-  { value: "year-oldest", label: "Năm xuất bản: Cũ → Mới" },
-  { value: "publisher-asc", label: "Nhà xuất bản: A → Z" },
-];
 
 const BooksListPage = () => {
   const [books, setBooks] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
-  const [sortBy, setSortBy] = useState("title-asc");
-  const [view, setView] = useState("grid");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(9);
+  const [total, setTotal] = useState(0);
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const query = params.get("query") || "";
-    const k = params.get("k") || 5;
-  
-    if (query) {
-      setQuery(query);          // lưu lại để hiện ở UI
-      fetchBooks(query, k);     // gọi API search
-    }
-  }, [location.search]);
-  
-  const fetchBooks = async (query, k) => {
+    fetchData(page, limit);
+  }, [page, limit]);
+
+  const fetchData = async (page, limit) => {
     setLoading(true);
     try {
-      const data = await searchBooks(query, k); // dùng API search
-      setBooks(data);
-    } catch (error) {
-      console.error("Search error:", error);
+      const [bookData, favData] = await Promise.all([
+        getBooksPaginated(page, limit),
+        getFavoriteBooks(),
+      ]);
+
+      setBooks(bookData.items || bookData); // nếu API trả items
+      setTotal(bookData.total || bookData.length || 100);
+      setFavoriteIds(favData.map((b) => b._id || b.ISBN));
+    } catch (err) {
+      console.error(err);
+      message.error("Không thể tải danh sách sách");
     } finally {
       setLoading(false);
     }
   };
-  
 
+  // ✅ Khi click 1 sách → chuyển sang trang chi tiết
   const handleDetailBook = (book) => {
     navigate("/books/details", { state: { book } });
   };
-  const normalized = (s) => (s || "").toString().toLowerCase();
 
-  const filteredAndSorted = useMemo(() => {
-    const filtered = books.filter((b) => {
-      const q = normalized(query);
-      if (!q) return true;
-      return (
-        normalized(b["Book-Title"]).includes(q) ||
-        normalized(b["Book-Author"]).includes(q) ||
-        normalized(b.Publisher).includes(q) ||
-        normalized(b.ISBN).includes(q)
-      );
-    });
-
-    const sorted = filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "title-asc":
-          return normalized(a["Book-Title"]).localeCompare(normalized(b["Book-Title"]));
-        case "title-desc":
-          return normalized(b["Book-Title"]).localeCompare(normalized(a["Book-Title"]));
-        case "author-asc":
-          return normalized(a["Book-Author"]).localeCompare(normalized(b["Book-Author"]));
-        case "author-desc":
-          return normalized(b["Book-Author"]).localeCompare(normalized(a["Book-Author"]));
-        case "year-newest":
-          return Number(b["Year-Of-Publication"] || 0) - Number(a["Year-Of-Publication"] || 0);
-        case "year-oldest":
-          return Number(a["Year-Of-Publication"] || 0) - Number(b["Year-Of-Publication"] || 0);
-        case "publisher-asc":
-          return normalized(a.Publisher).localeCompare(normalized(b.Publisher));
-        default:
-          return 0;
-      }
-    });
-
-    return sorted;
-  }, [books, query, sortBy]);
-
-  const clearFilters = () => {
-    setQuery("");
-    setSortBy("title-asc");
-    setView("grid");
+  const handleToggleFavorite = (book, added) => {
+    const id = book._id || book.ISBN;
+    setFavoriteIds((prev) =>
+      added ? [...prev, id] : prev.filter((fid) => fid !== id)
+    );
   };
 
-  if (loading) {
+  if (loading)
     return (
       <div className="flex justify-center items-center h-screen">
         <Spin size="large" tip="Đang tải sách..." />
       </div>
     );
-  }
-
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* giữ nguyên UI code... */}
-      <main className="lg:col-span-3">
-        {/* Header kết quả */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-gray-600">
-            Tìm thấy <span className="font-semibold text-black">{filteredAndSorted.length}</span> kết quả
-          </p>
-        </div>
+    <div className="min-h-screen bg-white px-6 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-sm text-gray-600">
+          Có <span className="font-semibold">{total}</span> sách
+        </p>
+      </div>
 
-        {/* Hiển thị danh sách */}
-        {filteredAndSorted.length === 0 ? (
-          <div className="py-16 text-center">
-            <SearchOutlined className="text-2xl text-gray-400 mb-2" />
-            <p>Không tìm thấy kết quả</p>
-          </div>
-        ) : view === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredAndSorted.map((book) => (
-              <div key={book.ISBN} onClick={() => handleDetailBook(book)}>
-                <BookCard book={book} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredAndSorted.map((book) => (
-              <Card key={book.ISBN} hoverable>
-                <div className="flex gap-4 items-center">
-                  <img src={book["Image-URL-L"]} alt={book["Book-Title"]} className="w-20 h-24 object-cover rounded" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{book["Book-Title"]}</h3>
-                    <p>Tác giả: {book["Book-Author"]}</p>
-                    <p>NXB: {book.Publisher}</p>
-                    <p className="text-xs text-gray-500">ISBN: {book.ISBN} • Năm: {book["Year-Of-Publication"]}</p>
-                  </div>
-                  <Button type="primary">Mua ngay</Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </main>
+      {/* ✅ Lưới sách */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {books.map((book) => {
+          const id = book._id || book.ISBN;
+          return (
+            <div
+              key={id}
+              onClick={() => handleDetailBook(book)}
+              className="cursor-pointer"
+            >
+              <BookCard
+                book={book}
+                isFavorite={favoriteIds.includes(id)}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Phân trang */}
+      <div className="flex justify-center mt-6">
+        <Pagination
+          current={page}
+          pageSize={limit}
+          total={total}
+          onChange={(p, l) => {
+            setPage(p);
+            setLimit(l);
+          }}
+          showSizeChanger
+        />
+      </div>
     </div>
   );
 };

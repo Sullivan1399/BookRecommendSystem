@@ -1,58 +1,60 @@
-import React from "react";
-import { Card } from "antd";
-
-const { Meta } = Card;
+import React, { useEffect, useState } from "react";
+import { Spin, message } from "antd";
+import { getFavoriteBooks, removeFavoriteBook } from "../../api/favorites";
+import BookCard from "../../components/BookCard";
 
 const FavoriteBooksPage = () => {
-  // Mock data sách yêu thích
-  const favoriteBooks = [
-    {
-      id: 1,
-      title: "Atomic Habits",
-      author: "James Clear",
-      cover: "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg",
-    },
-    {
-      id: 2,
-      title: "The Pragmatic Programmer",
-      author: "Andrew Hunt, David Thomas",
-      cover:
-        "https://images-na.ssl-images-amazon.com/images/I/518FqJvR9aL._SX377_BO1,204,203,200_.jpg",
-    },
-    {
-      id: 3,
-      title: "Clean Code",
-      author: "Robert C. Martin",
-      cover:
-        "https://images-na.ssl-images-amazon.com/images/I/41xShlnTZTL._SX374_BO1,204,203,200_.jpg",
-    },
-  ];
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchFavorites = async () => {
+    setLoading(true);
+    try {
+      const data = await getFavoriteBooks();
+      setFavorites(data);
+    } catch (err) {
+      message.error("Không thể tải danh sách yêu thích");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFavorites();
+  }, []);
+
+  const handleToggleFavorite = async (book, added) => {
+    // Nếu bỏ yêu thích trong trang này thì xóa khỏi danh sách
+    if (!added) {
+      setFavorites((prev) => prev.filter((b) => (b._id || b.ISBN) !== (book._id || book.ISBN)));
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" tip="Đang tải..." />
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-white text-black p-6">
-      <h1 className="text-2xl font-bold mb-6">Sách Yêu Thích</h1>
+    <div className="p-4 bg-white min-h-screen">
+      <h2 className="text-lg font-semibold mb-4">Sách yêu thích của bạn</h2>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-        {favoriteBooks.map((book) => (
-          <Card
-            key={book.id}
-            hoverable
-            cover={
-              <img
-                alt={book.title}
-                src={book.cover}
-                className="h-64 object-cover"
-              />
-            }
-            className="shadow-md rounded-lg"
-          >
-            <Meta
-              title={<span className="font-semibold">{book.title}</span>}
-              description={<span className="text-gray-600">{book.author}</span>}
+      {favorites.length === 0 ? (
+        <p>Bạn chưa có sách yêu thích nào.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {favorites.map((book) => (
+            <BookCard
+              key={book._id || book.ISBN}
+              book={book}
+              isFavorite={true}
+              onToggleFavorite={handleToggleFavorite}
             />
-          </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

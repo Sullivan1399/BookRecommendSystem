@@ -80,7 +80,7 @@ const BookDetails = () => {
             size="large"
             className="bg-black text-white px-8 py-5 rounded-lg hover:bg-gray-800 transition"
           >
-            Mua ngay
+            Đọc ngay
           </Button>
         </div>
       </div>

@@ -8,7 +8,6 @@ class BookEmbeddingRepository:
         self.collection = self.database[settings.BOOK_EMBEDDING_COLLECTION_NAME]
 
     async def insert(self, ISBN: str, embedding: list):
-        """Thêm embedding mới cho ISBN"""
         return await self.collection.insert_one({"ISBN": ISBN, "Embedding": embedding})
 
     async def update(self, ISBN: str, embedding: list):
@@ -42,7 +41,7 @@ class BookEmbeddingRepository:
             {"$unwind": "$book_info"},
             {
                 "$project": {
-                    "_id": 0,  # bỏ ObjectId để tránh lỗi serialization
+                    "_id": "$book_info._id",  # ✅ Lấy _id thật từ Book
                     "ISBN": 1,
                     "score": {"$meta": "vectorSearchScore"},
                     "Book-Title": "$book_info.Book-Title",
@@ -58,4 +57,10 @@ class BookEmbeddingRepository:
             }
         ]
         cursor = self.collection.aggregate(pipeline)
-        return [doc async for doc in cursor]
+        results = [doc async for doc in cursor]
+
+        # ✅ Chuyển ObjectId thành string để serialize được
+        for r in results:
+            if "_id" in r:
+                r["_id"] = str(r["_id"])
+        return results

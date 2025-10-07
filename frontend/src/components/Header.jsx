@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Dropdown, Button, Input, Avatar, Menu } from "antd";
+import { Layout, Dropdown, Button, Input, Avatar, Menu, Select, Space } from "antd";
 import {
   CaretDownOutlined,
   CaretUpOutlined,
@@ -8,24 +8,25 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
-import { getCurrentUser } from "../api/profile"; // import hàm API /me
+import { getCurrentUser } from "../api/profile";
 
 const { Header } = Layout;
 const { Search } = Input;
+const { Option } = Select;
 
 const HeaderNavbar = () => {
   const [position] = useState("end");
   const [isHover, setIsHover] = useState(false);
-  const [user, setUser] = useState(null); // ✅ lưu user vào state
+  const [user, setUser] = useState(null);
+  const [searchMode, setSearchMode] = useState("normal"); // 🟢 thêm state chế độ tìm kiếm
   const navigate = useNavigate();
 
-  // Lấy user từ API /me khi component mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await getCurrentUser(); // call API
-        setUser(data); // lưu vào state
-        console.log(data)
+        const data = await getCurrentUser();
+        setUser(data);
+        console.log(data);
       } catch (error) {
         console.error("Không lấy được user:", error.message);
       }
@@ -45,7 +46,6 @@ const HeaderNavbar = () => {
     { text: "Bộ sách", href: "/books/list" },
     { text: "Bán chạy", href: "/best-sellers" },
     { text: "Khuyến mãi", href: "/sale" },
-    { text: "Liên hệ", href: "/contact" },
   ];
 
   const userMenu = (
@@ -68,12 +68,16 @@ const HeaderNavbar = () => {
     </Menu>
   );
 
+  // 🔍 Xử lý tìm kiếm
   const onSearch = (value) => {
     if (value.trim()) {
-      navigate(`/books/search?query=${encodeURIComponent(value)}&k=5`);
+      if (searchMode === "vector") {
+        navigate(`/books/search-vector?query=${encodeURIComponent(value)}`);
+      } else {
+        navigate(`/books/search?query=${encodeURIComponent(value)}&k=5`);
+      }
     }
   };
-  
 
   return (
     <Header
@@ -99,15 +103,27 @@ const HeaderNavbar = () => {
         </a>
       </div>
 
-      {/* Search */}
+      {/* Search + Select */}
       <div className="flex items-center ml-auto w-[500px] mx-8">
-        <Search
-          placeholder="Tìm kiếm sách..."
-          allowClear
-          enterButton={<SearchOutlined />}
-          size="middle"
-          onSearch={onSearch} // dùng hàm đã sửa
-        />
+        <Space.Compact style={{ width: "100%" }}>
+          {/* 🟣 Ô chọn chế độ */}
+          <Select
+            defaultValue="normal"
+            style={{ width: 160 }}
+            onChange={(value) => setSearchMode(value)}
+          >
+            <Option value="normal">Thường</Option>
+            <Option value="vector">Vector</Option>
+          </Select>
+          {/* 🔍 Thanh tìm kiếm */}
+          <Search
+            placeholder="Tìm kiếm sách..."
+            allowClear
+            enterButton={<SearchOutlined />}
+            size="middle"
+            onSearch={onSearch}
+          />
+        </Space.Compact>
       </div>
 
       {/* Navigation + User */}

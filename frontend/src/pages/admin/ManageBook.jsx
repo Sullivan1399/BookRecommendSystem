@@ -191,10 +191,12 @@ const ManageBook = () => {
       "Year-Of-Publication": Number(values.year) || null,
       Publisher: values.publisher,
       Category: values.category || null,
+      Description: values.description || "", // 🆕 thêm dòng này
       "Image-URL-S": values.image_s || "",
       "Image-URL-M": values.image_m || "",
       "Image-URL-L": values.image_l || "",
     };
+    
   
     try {
       if (editing) {
@@ -283,19 +285,35 @@ const ManageBook = () => {
         destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item label="ISBN" name="ISBN" rules={[{ required: true, message: "Nhập ISBN" }]}>
+          <Form.Item
+            label="ISBN"
+            name="ISBN"
+            rules={[{ required: true, message: "Nhập ISBN" }]}
+          >
             <Input />
           </Form.Item>
 
-          <Form.Item label="Tiêu đề" name="title" rules={[{ required: true, message: "Nhập tiêu đề" }]}>
+          <Form.Item
+            label="Tiêu đề"
+            name="title"
+            rules={[{ required: true, message: "Nhập tiêu đề" }]}
+          >
             <Input />
           </Form.Item>
 
-          <Form.Item label="Tác giả" name="author" rules={[{ required: true, message: "Nhập tác giả" }]}>
+          <Form.Item
+            label="Tác giả"
+            name="author"
+            rules={[{ required: true, message: "Nhập tác giả" }]}
+          >
             <Input />
           </Form.Item>
 
-          <Form.Item label="NXB" name="publisher" rules={[{ required: true, message: "Nhập nhà xuất bản" }]}>
+          <Form.Item
+            label="NXB"
+            name="publisher"
+            rules={[{ required: true, message: "Nhập nhà xuất bản" }]}
+          >
             <Input />
           </Form.Item>
 
@@ -305,6 +323,15 @@ const ManageBook = () => {
 
           <Form.Item label="Thể loại" name="category">
             <Input placeholder="Ví dụ: Văn học, Kinh doanh..." />
+          </Form.Item>
+
+          {/* 🆕 Thêm trường mô tả sách */}
+          <Form.Item
+            label="Mô tả"
+            name="description"
+            rules={[{ required: true, message: "Vui lòng nhập mô tả sách" }]}
+          >
+            <Input.TextArea rows={4} placeholder="Nhập mô tả ngắn về nội dung sách..." />
           </Form.Item>
 
           <Form.Item label="Ảnh bìa nhỏ (URL-S)" name="image_s">
@@ -319,6 +346,7 @@ const ManageBook = () => {
             <Input placeholder="http://..." />
           </Form.Item>
         </Form>
+
       </Modal>
 
     </div>
