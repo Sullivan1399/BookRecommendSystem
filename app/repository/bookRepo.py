@@ -48,3 +48,10 @@ class BookRepository:
     async def aggregate(self, pipeline: list):
         cursor = self.collection.aggregate(pipeline)
         return [doc async for doc in cursor]
+    async def get_latest_books(self, limit: int = 10):
+        cursor = self.collection.find().sort("Year-Of-Publication", -1).limit(limit)
+        books = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            books.append(doc)
+        return books

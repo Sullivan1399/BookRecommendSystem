@@ -41,6 +41,7 @@ export const getBooks = async () => {
         "Year-Of-Publication": book["Year-Of-Publication"],
         Publisher: book.Publisher,
         Category: book.Category,
+        Description: book.Description,
         "Image-URL-L": book["Image-URL-L"],
         "Image-URL-M": book["Image-URL-M"],
         "Image-URL-S": book["Image-URL-S"],
@@ -247,3 +248,93 @@ export const deleteBook = async (bookId) => {
       throw error;
     }
   };
+
+  export const getLatestBooks = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/books/latest?k=5`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Không thể lấy danh sách sách");
+      }
+  
+      const data = await response.json();
+      console.log("data: "+ data)
+  
+      // Chuẩn hóa dữ liệu (nếu cần)
+      return data.map((book) => ({
+        ISBN: book.ISBN,
+        "Book-Title": book["Book-Title"],
+        "Book-Author": book["Book-Author"],
+        "Year-Of-Publication": book["Year-Of-Publication"],
+        Publisher: book.Publisher,
+        Category: book.Category,
+        Description: book.Description,
+        "Image-URL-L": book["Image-URL-L"],
+        "Image-URL-M": book["Image-URL-M"],
+        "Image-URL-S": book["Image-URL-S"],
+        _id: book._id,
+      }));
+    } catch (error) {
+      console.error("Error fetching books:", error.message);
+      throw error;
+    }
+  };
+  export const getRecommededBooks = async () => {
+    const token = localStorage.getItem("access_token");
+  
+    // ✅ Nếu không có token => không gọi API, trả về []
+    if (!token) {
+      console.warn("No token found — skip recommended books");
+      return [];
+    }
+  
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/recommend/books?top_k=5`, {
+        method: "GET",
+        headers: {
+          "accept": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+  
+      // ✅ Nếu bị 401 hoặc “Not authenticated” => trả về []
+      if (response.status === 401) {
+        console.warn("Token invalid or expired — skip recommended books");
+        return [];
+      }
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Không thể lấy danh sách sách");
+      }
+  
+      const data = await response.json();
+  
+      // Chuẩn hóa dữ liệu (nếu cần)
+      return data.map((book) => ({
+        ISBN: book.ISBN,
+        "Book-Title": book["Book-Title"],
+        "Book-Author": book["Book-Author"],
+        "Year-Of-Publication": book["Year-Of-Publication"],
+        Publisher: book.Publisher,
+        Category: book.Category,
+        Description: book.Description,
+        "Image-URL-L": book["Image-URL-L"],
+        "Image-URL-M": book["Image-URL-M"],
+        "Image-URL-S": book["Image-URL-S"],
+        _id: book._id,
+      }));
+    } catch (error) {
+      console.error("Error fetching recommended books:", error.message);
+      // ✅ Không throw nữa để tránh lỗi UI
+      return [];
+    }
+  };
+  
