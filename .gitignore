@@ -1,1 +1,4 @@
 .env
+/data_preprocess/
+__pycache__/
+*.pyc

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = "BookRecommend"
     BOOK_COLLECTION_NAME: str = "Book"
     USER_COLLECTION_NAME: str = "User"
+    RATING_COLLECTION_NAME: str = "Rating"
     BOOK_EMBEDDING_COLLECTION_NAME: str = "Book_Embedding"
 
     # JWT Auth
