@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Layout,
   Input,
@@ -10,7 +10,7 @@ import {
   Space,
   Carousel,
   Rate,
-  Badge,
+  Spin,
 } from "antd";
 
 import {
@@ -28,7 +28,7 @@ import {
 } from "@ant-design/icons";
 
 import BookCard from "../components/BookCard";
-
+import {getLatestBooks,getRecommededBooks } from  "../api/books"
 const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -36,174 +36,165 @@ const { Search } = Input;
 const HomePage = () => {
   const [hoveredBook, setHoveredBook] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
-
-  // Dữ liệu mẫu cho sách nổi bật
-  const featuredBooks = [
-    {
-      bookId: 1,
-      bookTitle: "Đắc Nhân Tâm",
-      bookAuthor: "Dale Carnegie",
-      yearOfPublication: 1936,
-      publisher: "Simon & Schuster",
-      imageUrlL:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-    },
-    {
-      bookId: 2,
-      bookTitle: "Đắc Nhân Tâm",
-      bookAuthor: "Dale Carnegie",
-      yearOfPublication: 1936,
-      publisher: "Simon & Schuster",
-      imageUrlL:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-    },
-    {
-      bookId: 3,
-      bookTitle: "Đắc Nhân Tâm",
-      bookAuthor: "Dale Carnegie",
-      yearOfPublication: 1936,
-      publisher: "Simon & Schuster",
-      imageUrlL:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-    },
-    {
-      bookId: 4,
-      bookTitle: "Đắc Nhân Tâm",
-      bookAuthor: "Dale Carnegie",
-      yearOfPublication: 1936,
-      publisher: "Simon & Schuster",
-      imageUrlL:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-    },
-    {
-      bookId: 5,
-      bookTitle: "Đắc Nhân Tâm",
-      bookAuthor: "Dale Carnegie",
-      yearOfPublication: 1936,
-      publisher: "Simon & Schuster",
-      imageUrlL:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-    },
-    {
-      bookId: 6,
-      bookTitle: "Đắc Nhân Tâm",
-      bookAuthor: "Dale Carnegie",
-      yearOfPublication: 1936,
-      publisher: "Simon & Schuster",
-      imageUrlL:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=400&fit=crop",
-    },
-  ];
+  const [featuredBooks, setFeaturedBooks] = useState([]);
+  const [recommendedBooks, setRecommendedBooks] = useState([])
+  const [loadingBooks, setLoadingBooks] = useState(true);
+  
+  // ✅ Gọi API lấy 6 sách đầu tiên khi load trang
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        // Chạy song song 2 API
+        const [latest, recommended] = await Promise.all([
+          getLatestBooks(),
+          getRecommededBooks(),
+        ]);
+  
+        setFeaturedBooks(latest || []);
+        setRecommendedBooks(recommended || []);
+      } catch (err) {
+        console.error("Lỗi khi tải dữ liệu sách:", err);
+      } finally {
+        setLoadingBooks(false);
+      }
+    };
+  
+    fetchBooks();
+  }, []);
+  
+  
 
   const categories = [
     {
-      name: "Văn học",
+      name: "Fiction",
       icon: <BookOutlined style={{ fontSize: 32 }} />,
       color: "#1890ff",
-      count: "1,234",
+      count: "53063",
     },
     {
-      name: "Kỹ năng sống",
+      name: "Juvenile Fiction",
       icon: <SmileOutlined style={{ fontSize: 32 }} />,
       color: "#52c41a",
-      count: "856",
+      count: "10266",
     },
     {
-      name: "Kinh tế",
+      name: "Mind & Spirit",
       icon: <MoneyCollectOutlined style={{ fontSize: 32 }} />,
       color: "#faad14",
-      count: "672",
+      count: "1705",
     },
     {
-      name: "Lịch sử",
+      name: "Religion",
       icon: <HistoryOutlined style={{ fontSize: 32 }} />,
       color: "#722ed1",
-      count: "543",
+      count: "3520",
     },
     {
-      name: "Khoa học",
+      name: "History",
       icon: <BulbOutlined style={{ fontSize: 32 }} />,
       color: "#fa541c",
-      count: "789",
+      count: "3515",
     },
     {
-      name: "Tâm lý học",
+      name: "Juvenile Nonfiction",
       icon: <TeamOutlined style={{ fontSize: 32 }} />,
       color: "#eb2f96",
-      count: "421",
+      count: "2929",
     },
     {
-      name: "Công nghệ",
+      name: "Social Science",
       icon: <CodeOutlined style={{ fontSize: 32 }} />,
       color: "#13c2c2",
-      count: "956",
+      count: "2281",
     },
     {
-      name: "Thiếu nhi",
+      name: "Business & Economics",
       icon: <RocketOutlined style={{ fontSize: 32 }} />,
       color: "#f759ab",
-      count: "1,089",
+      count: "2099",
     },
   ];
 
   // Banner carousel data
-  const bannerData = [
-    {
-      title: "Khuyến Mãi Cuối Năm",
-      subtitle: "Giảm giá lên đến 50% cho tất cả sách",
-      description:
-        "Cơ hội tuyệt vời để sở hữu những cuốn sách hay với giá ưu đãi",
-      bgColor: "bg-white",
-    },
-    {
-      title: "Sách Mới Về Kho",
-      subtitle: "Hàng trăm đầu sách mới nhất 2024",
-      description: "Cập nhật những cuốn sách hot nhất hiện tại",
-      bgColor: "bg-white",
-    },
-    {
-      title: "Miễn Phí Vận Chuyển",
-      subtitle: "Cho đơn hàng từ 200,000đ",
-      description: "Giao hàng nhanh chóng trên toàn quốc",
-      bgColor: "bg-white",
-    },
-  ];
+  // 🖼 Banner carousel data
+const bannerData = [
+  {
+    title: "Khuyến Mãi Cuối Năm",
+    subtitle: "Giảm giá lên đến 50% cho tất cả sách",
+    description:
+      "Cơ hội tuyệt vời để sở hữu những cuốn sách hay với giá ưu đãi",
+      img:  "https://static.vecteezy.com/system/resources/previews/021/916/224/non_2x/promo-banner-with-stack-of-books-globe-inkwell-quill-plant-lantern-ebook-world-book-day-bookstore-bookshop-library-book-lover-bibliophile-education-for-poster-cover-advertising-vector.jpg"
+     ,
+  },
+  {
+    title: "Sách Mới Về Kho",
+    subtitle: "Hàng trăm đầu sách mới nhất 2024",
+    description: "Cập nhật những cuốn sách hot nhất hiện tại",
+    img: "https://fortbragglibrary.org/wp-content/uploads/2017/12/Book-banner.jpg",
+  },
+  {
+    title: "Miễn Phí Vận Chuyển",
+    subtitle: "Cho đơn hàng từ 200,000đ",
+    description: "Giao hàng nhanh chóng trên toàn quốc",
+    img: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1600&h=600&fit=crop",
+  },
+];
 
   return (
     <Layout className="min-h-screen w-full bg-white">
       <Content>
         {/* Hero Banner */}
+        {/* 🖼 Hero Banner với hình nền */}
         <div className="bg-white">
-          <Carousel autoplay className="h-96">
+          <Carousel autoplay className="h-[480px] md:h-[520px] lg:h-[560px]">
             {bannerData.map((banner, index) => (
               <div key={index}>
-                <div className="bg-white h-96 flex items-center justify-center text-black relative overflow-hidden">
-                  <div className="text-center max-w-4xl mx-auto px-8 z-10">
+                <div
+                  className="relative flex items-center justify-center h-[480px] md:h-[520px] lg:h-[560px] text-white"
+                  style={{
+                    backgroundImage: `url(${banner.img})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+
+                  {/* Nội dung banner */}
+                  <div
+                      className="
+                        relative z-10 text-center px-6 max-w-3xl mx-auto
+                        bg-white/50 backdrop-blur-md
+                        rounded-2xl shadow-lg p-8
+                      "
+                    >
                     <Title
                       level={1}
-                      className="!text-black !mb-4 text-5xl font-bold"
+                      className="text-white !mb-4 text-5xl font-bold drop-shadow-lg"
                     >
                       {banner.title}
                     </Title>
-                    <Title level={3} className="!text-black !mb-6">
+                    <Title
+                      level={3}
+                      className="text-white !mb-6 text-2xl font-semibold drop-shadow"
+                    >
                       {banner.subtitle}
                     </Title>
-                    <Paragraph className="text-black text-lg mb-8 max-w-2xl mx-auto">
+                    <Paragraph className="text-white text-lg mb-8 drop-shadow-md max-w-2xl mx-auto">
                       {banner.description}
                     </Paragraph>
                     <Space size="middle">
                       <Button
                         size="large"
                         type="primary"
-                        className="bg-black text-white border-black hover:bg-white hover:text-black px-8 py-6 h-auto text-base font-medium"
+                        className="bg-black text-white border-white hover:bg-white hover:text-black px-8 py-6 h-auto text-base font-medium"
                       >
                         Mua ngay
                       </Button>
                       <Button
                         size="large"
-                        className="border-black text-black hover:bg-black hover:text-white px-8 py-6 h-auto text-base font-medium"
+                        className="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-6 h-auto text-base font-medium"
                       >
-                        Xem thêm</Button>
+                        Xem thêm
+                      </Button>
                     </Space>
                   </div>
                 </div>
@@ -211,6 +202,7 @@ const HomePage = () => {
             ))}
           </Carousel>
         </div>
+
 
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           {/* Categories Section - IMPROVED */}
@@ -233,10 +225,15 @@ const HomePage = () => {
                     onMouseLeave={() => setHoveredCategory(null)}
                   >
                     <div
-                      className="bg-white rounded-2xl p-6 border-2 border-gray-100 transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2 hover:border-transparent overflow-hidden"
+                      className="
+                        bg-white rounded-2xl p-6 border-2 border-gray-100
+                        transition-all duration-300 ease-in-out
+                        hover:shadow-2xl hover:-translate-y-2 hover:border-transparent
+                        overflow-hidden
+                        flex flex-col justify-between h-[220px]  // 🟢 Thêm dòng này
+                      "
                       style={{
-                        borderColor:
-                          hoveredCategory === index ? cat.color : undefined,
+                        borderColor: hoveredCategory === index ? cat.color : undefined,
                       }}
                     >
                       {/* Background gradient on hover */}
@@ -297,13 +294,69 @@ const HomePage = () => {
             </div>
           </div>
 
-          <Row gutter={[24, 24]}>
-            {featuredBooks.map((book) => (
-              <Col xs={12} sm={8} md={6} lg={4} key={book.bookId}>
-                <BookCard book={book} />
-              </Col>
-            ))}
-          </Row>
+          <div className="py-16">
+            <Title level={2} className="text-center mb-12 text-black">
+              Sách Mới
+            </Title>
+
+            {loadingBooks ? (
+              <div className="flex justify-center items-center py-20">
+                <Spin size="large" tip="Đang tải sách nổi bật..." />
+              </div>
+            ) : (
+              <div
+                className="
+                  grid gap-6
+                  grid-cols-1
+                  sm:grid-cols-2
+                  md:grid-cols-3
+                  lg:grid-cols-4
+                  xl:grid-cols-5
+                  2xl:grid-cols-6
+                  px-2 sm:px-4 md:px-8
+                "
+              >
+                {featuredBooks.map((book) => (
+                  <BookCard key={book._id} book={book} />
+                ))}
+              </div>
+            )}
+          </div>
+          {
+            recommendedBooks.length > 0 ? (
+              <div className="py-16">
+                <Title level={2} className="text-center mb-12 text-black">
+                  Gợi ý cho bạn
+                </Title>
+
+                {loadingBooks ? (
+                  <div className="flex justify-center items-center py-20">
+                    <Spin size="large" tip="Đang tải sách nổi bật..." />
+                  </div>
+                ) : (
+                  <div
+                    className="
+                      grid gap-6
+                      grid-cols-1
+                      sm:grid-cols-2
+                      md:grid-cols-3
+                      lg:grid-cols-4
+                      xl:grid-cols-5
+                      2xl:grid-cols-6
+                      px-2 sm:px-4 md:px-8
+                    "
+                  >
+                    {recommendedBooks.map((book) => (
+                      <BookCard key={book._id} book={book} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : <p className="text-gray-500 italic">
+            Đăng nhập để xem gợi ý sách dành riêng cho bạn
+          </p>
+          }
+
 
           {/* Features Section */}
           <div className="py-16 bg-white -mx-4 lg:-mx-8 px-4 lg:px-8">

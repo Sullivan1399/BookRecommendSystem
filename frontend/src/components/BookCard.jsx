@@ -7,6 +7,7 @@ import {
   BookFilled,
 } from "@ant-design/icons";
 import { addFavoriteBook, removeFavoriteBook } from "../api/favorites";
+import { useNavigate } from "react-router-dom"; // ✅ thêm dòng này
 
 const { Meta } = Card;
 
@@ -17,6 +18,7 @@ const BookCard = ({
 }) => {
   const [isFavorite, setIsFavorite] = useState(defaultFavorite);
   const [favoriteType, setFavoriteType] = useState("heart"); // "heart" hoặc "bookmark"
+  const navigate = useNavigate(); // ✅ để điều hướng chi tiết
 
   // Hàm toggle yêu thích
   const toggleFavorite = async (e) => {
@@ -37,7 +39,9 @@ const BookCard = ({
       message.error(err.message || "Lỗi thao tác yêu thích");
     }
   };
-
+  const handleCardClick = () => {
+    navigate("/books/details", { state: { book } });
+  };
   // Menu đổi biểu tượng
   const handleChangeType = ({ key }) => {
     setFavoriteType(key);
@@ -101,6 +105,7 @@ const BookCard = ({
       {/* Thẻ sách */}
       <Card
         hoverable
+        onClick={handleCardClick}
         className="shadow-md rounded-lg border-gray-200 h-full flex flex-col"
         cover={
           <div className="w-full aspect-[6/3] overflow-hidden rounded-t-lg">

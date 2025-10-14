@@ -50,6 +50,14 @@ class BookRepository:
         cursor = self.collection.aggregate(pipeline)
         return [doc async for doc in cursor]
 
+    async def get_latest_books(self, limit: int = 10):
+        cursor = self.collection.find().sort("Year-Of-Publication", -1).limit(limit)
+        books = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            books.append(doc)
+        return books
+    
     async def get_popular_books(self, limit: int = 10, min_ratings: int = 1, sort_by: str = "ratingCount"):
         if sort_by not in ("ratingCount", "avgRating"):
             sort_by = "ratingCount"
@@ -75,3 +83,4 @@ class BookRepository:
     ) -> List[str]:
         docs = await self.get_popular_books(limit=limit, min_ratings=min_ratings, sort_by=sort_by)
         return [d["ISBN"] for d in docs if "ISBN" in d]
+
