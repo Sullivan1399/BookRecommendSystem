@@ -66,52 +66,52 @@ const HomePage = () => {
 
   const categories = [
     {
-      name: "Văn học",
+      name: "Fiction",
       icon: <BookOutlined style={{ fontSize: 32 }} />,
       color: "#1890ff",
-      count: "1,234",
+      count: "53063",
     },
     {
-      name: "Kỹ năng sống",
+      name: "Juvenile Fiction",
       icon: <SmileOutlined style={{ fontSize: 32 }} />,
       color: "#52c41a",
-      count: "856",
+      count: "10266",
     },
     {
-      name: "Kinh tế",
+      name: "Mind & Spirit",
       icon: <MoneyCollectOutlined style={{ fontSize: 32 }} />,
       color: "#faad14",
-      count: "672",
+      count: "1705",
     },
     {
-      name: "Lịch sử",
+      name: "Religion",
       icon: <HistoryOutlined style={{ fontSize: 32 }} />,
       color: "#722ed1",
-      count: "543",
+      count: "3520",
     },
     {
-      name: "Khoa học",
+      name: "History",
       icon: <BulbOutlined style={{ fontSize: 32 }} />,
       color: "#fa541c",
-      count: "789",
+      count: "3515",
     },
     {
-      name: "Tâm lý học",
+      name: "Juvenile Nonfiction",
       icon: <TeamOutlined style={{ fontSize: 32 }} />,
       color: "#eb2f96",
-      count: "421",
+      count: "2929",
     },
     {
-      name: "Công nghệ",
+      name: "Social Science",
       icon: <CodeOutlined style={{ fontSize: 32 }} />,
       color: "#13c2c2",
-      count: "956",
+      count: "2281",
     },
     {
-      name: "Thiếu nhi",
+      name: "Business & Economics",
       icon: <RocketOutlined style={{ fontSize: 32 }} />,
       color: "#f759ab",
-      count: "1,089",
+      count: "2099",
     },
   ];
 
@@ -225,10 +225,15 @@ const bannerData = [
                     onMouseLeave={() => setHoveredCategory(null)}
                   >
                     <div
-                      className="bg-white rounded-2xl p-6 border-2 border-gray-100 transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2 hover:border-transparent overflow-hidden"
+                      className="
+                        bg-white rounded-2xl p-6 border-2 border-gray-100
+                        transition-all duration-300 ease-in-out
+                        hover:shadow-2xl hover:-translate-y-2 hover:border-transparent
+                        overflow-hidden
+                        flex flex-col justify-between h-[220px]  // 🟢 Thêm dòng này
+                      "
                       style={{
-                        borderColor:
-                          hoveredCategory === index ? cat.color : undefined,
+                        borderColor: hoveredCategory === index ? cat.color : undefined,
                       }}
                     >
                       {/* Background gradient on hover */}
