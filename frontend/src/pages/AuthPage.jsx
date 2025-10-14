@@ -244,7 +244,7 @@ const AuthPage = () => {
                 icon={Mail}
                 type="text"
                 name="username"
-                placeholder="Email hoặc Username"
+                placeholder="Username"
                 value={loginForm.username}   // ✅ đúng key
                 onChange={handleChange(setLoginForm)}
               />
@@ -294,7 +294,7 @@ const AuthPage = () => {
                 icon={User}
                 type="text"
                 name="fullName"
-                placeholder="Họ và tên"
+                placeholder="Username"
                 value={signupForm.fullName}
                 onChange={handleChange(setSignupForm)}
               />

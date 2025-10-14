@@ -66,3 +66,8 @@ class BookServices():
         query_embedding = generate_embedding(query)
         results = await self.embeddingRepo.vector_search(query_embedding, k)
         return [BookResponse(**r) for r in results] 
+
+    async def get_latest_books(self, limit: int = 10):
+        docs = await self.bookRepository.get_latest_books(limit)
+        return [BookResponse(**doc) for doc in docs]
+

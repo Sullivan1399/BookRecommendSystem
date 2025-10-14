@@ -39,9 +39,9 @@ const BooksListPage = () => {
   };
 
   // ✅ Khi click 1 sách → chuyển sang trang chi tiết
-  const handleDetailBook = (book) => {
-    navigate("/books/details", { state: { book } });
-  };
+  // const handleDetailBook = (book) => {
+  //   navigate("/books/details", { state: { book } });
+  // };
 
   const handleToggleFavorite = (book, added) => {
     const id = book._id || book.ISBN;
@@ -72,7 +72,7 @@ const BooksListPage = () => {
           return (
             <div
               key={id}
-              onClick={() => handleDetailBook(book)}
+              //onClick={() => handleDetailBook(book)}
               className="cursor-pointer"
             >
               <BookCard

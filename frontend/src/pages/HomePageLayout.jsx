@@ -1,9 +1,7 @@
-import React from "react";
 import { Breadcrumb, Layout, theme } from "antd";
 import HeaderNavbar from "../components/Header";
-import SideBar from "../components/Sidebar";
 import { Outlet, useLocation, Link } from "react-router-dom";
-
+import ChatbotFloatButton from "../components/ChatbotFloatButton";
 const HomePageLayout = () => {
   const location = useLocation();
 
@@ -65,6 +63,7 @@ const HomePageLayout = () => {
         >
           {/* <SideBar/> */}
           <Outlet />
+          <ChatbotFloatButton /> {/* Nút chatbot xuất hiện ở mọi trang */}
         </Layout>
       </div>
     </Layout>

@@ -46,3 +46,11 @@ async def delete(book_id: str,
 async def vector_search(query: str, k: int = 5,
                         bookServices: BookServices = Depends(get_book_service)):
     return await bookServices.vector_search(query, k)
+
+@router.get("/latest", response_model=list[BookResponse])
+async def get_latest_books(
+    k: int = 10,
+    bookServices: BookServices = Depends(get_book_service)
+):
+    return await bookServices.get_latest_books(k)
+
