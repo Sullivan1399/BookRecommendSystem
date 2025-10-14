@@ -11,6 +11,8 @@ import {
   Carousel,
   Rate,
   Spin,
+  Select,
+
 } from "antd";
 
 import {
@@ -22,24 +24,29 @@ import {
   HistoryOutlined,
   CodeOutlined,
   TeamOutlined,
-  ThunderboltOutlined,
+  SearchOutlined ,
   SafetyOutlined,
   DollarCircleOutlined,
 } from "@ant-design/icons";
 
 import BookCard from "../components/BookCard";
 import {getLatestBooks,getRecommededBooks } from  "../api/books"
+import { useNavigate } from "react-router-dom";
+import { recommendByItem, getBooksByISBN  } from "../api/books";
+
 const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 
+
 const HomePage = () => {
+  const navigate = useNavigate();
   const [hoveredBook, setHoveredBook] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [featuredBooks, setFeaturedBooks] = useState([]);
   const [recommendedBooks, setRecommendedBooks] = useState([])
   const [loadingBooks, setLoadingBooks] = useState(true);
-  
+
   // ✅ Gọi API lấy 6 sách đầu tiên khi load trang
   useEffect(() => {
     const fetchBooks = async () => {
@@ -62,6 +69,56 @@ const HomePage = () => {
     fetchBooks();
   }, []);
   
+  const [searchMode, setSearchMode] = useState("hybrid");
+const [searchResults, setSearchResults] = useState([]);
+const [loadingSearch, setLoadingSearch] = useState(false);
+const inputRef = React.useRef(null);
+
+const onSearch = async (value) => {
+  if (!value.trim()) return;
+  setLoadingSearch(true);
+  setSearchResults([]);
+
+  try {
+    // ✅ Nếu nhập ISBN (dãy ký tự chữ-số)
+    if (/^[0-9Xx-]+$/.test(value.trim())) {
+      // B1. Gọi API gợi ý ISBN
+      const isbnList = await recommendByItem(value, 10, searchMode);
+      console.log("Danh sách ISBN gợi ý:", isbnList);
+
+      // B2. Gọi tiếp API lấy chi tiết sách
+      const bookDetails = await getBooksByISBN(isbnList);
+      console.log("Chi tiết sách:", bookDetails);
+
+      // B3. Hiển thị
+      setSearchResults(bookDetails);
+    } else {
+      // ✅ Nếu không phải ISBN, chuyển sang trang search bình thường
+      switch (searchMode) {
+        case "topk":
+          navigate(`/books/search-topk?query=${encodeURIComponent(value)}&k=5`);
+          break;
+        case "nn":
+          navigate(`/books/search-nn?query=${encodeURIComponent(value)}`);
+          break;
+        case "content":
+          navigate(`/books/search-content?query=${encodeURIComponent(value)}`);
+          break;
+        case "hybrid":
+          navigate(`/books/search-hybrid?query=${encodeURIComponent(value)}`);
+          break;
+        default:
+          navigate(`/books/search?query=${encodeURIComponent(value)}`);
+      }
+    }
+  } catch (err) {
+    console.error("Lỗi khi tìm kiếm:", err);
+  } finally {
+    setLoadingSearch(false);
+  }
+};
+
+
   
 
   const categories = [
@@ -202,6 +259,81 @@ const bannerData = [
             ))}
           </Carousel>
         </div>
+        {/* 🔍 Thanh tìm kiếm nâng cấp */}
+        <div className="flex justify-center w-full mt-12 mb-16">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              background: "#f5f6fa",
+              borderRadius: "9999px",
+              padding: "4px 10px",
+              width: "60%",
+              maxWidth: "600px",
+              boxShadow: "inset 0 0 0 1px #d9d9d9",
+            }}
+          >
+            <Select
+              defaultValue="topk"
+              style={{
+                width: 150,
+                border: "none",
+                backgroundColor: "transparent",
+                fontWeight: "500",
+              }}
+              bordered={false}
+              onChange={(value) => setSearchMode(value)}
+              options={[
+                { value: "topk", label: "Top-K 🔢" },
+                { value: "nn", label: "Nearest Neighbors 🤝" },
+                { value: "content", label: "Content 🧠" },
+                { value: "hybrid", label: "Hybrid ⚡" },
+              ]}
+            />
+            <Input
+              placeholder="Gợi ý sách theo ISBN"
+              bordered={false}
+              ref={inputRef}
+              size="large"
+              onPressEnter={(e) => onSearch(e.target.value)}
+              style={{
+                flex: 1,
+                backgroundColor: "transparent",
+                fontSize: 15,
+              }}
+            />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<SearchOutlined />}
+              onClick={() => {
+                const value = inputRef.current?.input?.value?.trim();
+                if (value) onSearch(value);
+              }}
+              style={{
+                backgroundColor: "#1677ff",
+                borderColor: "#1677ff",
+                color: "#fff",
+              }}
+            />
+
+          </div>
+        </div>
+        {loadingSearch ? (
+          <div className="flex justify-center py-8">
+            <Spin tip="Đang gợi ý sách..." />
+          </div>
+        ) : searchResults.length > 0 ? (
+          <div className="mt-8 px-8">
+            <Title level={3}>Kết quả gợi ý ({searchMode.toUpperCase()})</Title>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {searchResults.map((book, idx) => (
+                <BookCard key={book.ISBN || idx} book={book} />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
 
 
         <div className="max-w-7xl mx-auto px-4 lg:px-8">

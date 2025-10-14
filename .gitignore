@@ -3,4 +3,4 @@
 __pycache__/
 *.pyc
 /recommendSystem/item_user.pkl
-/data/BX_Books.csv
+/data/
