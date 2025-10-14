@@ -105,7 +105,7 @@ const HeaderNavbar = () => {
       </div>
 
       {/* Search + Select */}
-      <div className="flex items-center ml-auto w-[500px] mx-8">
+      <div className="flex items-center ml-auto w-full justify-center mx-8">
         <Space.Compact style={{ width: "100%" }}>
           {/* 🟣 Ô chọn chế độ */}
           <Select

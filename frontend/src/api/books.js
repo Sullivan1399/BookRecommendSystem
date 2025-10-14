@@ -337,4 +337,52 @@ export const deleteBook = async (bookId) => {
       return [];
     }
   };
-  
+  // ✅ Hàm gọi API gợi ý sách theo ISBN + phương pháp
+export const recommendByItem = async (isbn, k = 10, method = "hybrid") => {
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/recommend/item/${isbn}?k=${k}&method=${method}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log("recommended item: " + data)
+    return data; // Trả về danh sách gợi ý (danh sách ISBN hoặc object sách)
+  } catch (err) {
+    console.error("❌ Lỗi khi gọi API recommendByItem:", err);
+    throw err;
+  }
+};
+// ✅ Gọi API lấy thông tin sách từ list ISBN
+export const getBooksByISBN = async (isbnList) => {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/books/by_isbn", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(isbnList),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log("get bôk íbn:"+data)
+    return data; // danh sách sách chi tiết
+  } catch (err) {
+    console.error("❌ Lỗi khi gọi API getBooksByISBN:", err);
+    throw err;
+  }
+};
