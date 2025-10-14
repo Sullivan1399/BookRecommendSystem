@@ -1,18 +1,20 @@
 import uvicorn
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from motor.motor_asyncio import AsyncIOMotorClient
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config.settings import settings
 from app.config.database import MongoClientSingleton
-from app.services import bookService, userService
-from app.routers import bookRoute, userRoute, favoriteBookRouter, favoriteGenreRouter
-from app.routers import recommendRouter
+from app.services import bookService, userService, recommendService
+from app.routers import bookRoute, userRoute, favoriteBookRouter, favoriteGenreRouter, recommendRouter, chatbotRouter
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     mongoClient = MongoClientSingleton()
+    print("Model loading...")
+    svc = recommendService.get_recommender()
+    svc.load_all()
     print("Application startup complete. Ready to serve requests.")
 
     yield
@@ -20,31 +22,32 @@ async def lifespan(app: FastAPI):
     await mongoClient.close_client()
     
     print("Shutting down application...")
-
+    
 
 app = FastAPI(
     title="Books Recommendation Application",
     lifespan=lifespan
 )
-# ✅ Cấu hình CORS
+
 origins = [
     "http://localhost:5173",   # Frontend (Vite/React)
-    "http://127.0.0.1:5173",   # Trường hợp bạn truy cập bằng 127.0.0.1
-    # "*"  # Nếu muốn cho phép tất cả origin (không khuyến khích cho production)
+    "http://127.0.0.1:5173",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,            # danh sách origin được phép
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],              # cho phép tất cả phương thức (GET, POST, PUT, DELETE...)
-    allow_headers=["*"],              # cho phép tất cả header (Content-Type, Authorization...)
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 app.include_router(bookRoute.router, prefix="/books", tags=["Books"])
 app.include_router(userRoute.router, prefix="/users", tags=["Users"])
+app.include_router(recommendRouter.router, prefix="/recommend", tags=["Recommends"])
+app.include_router(chatbotRouter.router, prefix="/chat", tags=["Chatbot"])
 app.include_router(favoriteBookRouter.router)   
 app.include_router(favoriteGenreRouter.router)
-app.include_router(recommendRouter.router)
+
 @app.get("/")
 async def root():
     return {
