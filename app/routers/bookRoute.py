@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.utils.dependencies import get_book_service,  get_current_admin
 from app.services.bookService import BookServices
 from app.models.book import BookCreate, BookResponse
-
+from typing import List
+from fastapi import Body
 
 router = APIRouter()
 
@@ -54,3 +55,14 @@ async def get_latest_books(
 ):
     return await bookServices.get_latest_books(k)
 
+@router.post("/by_isbn", response_model=list[BookResponse])
+async def get_books_by_isbn(
+    isbn_list: List[str] = Body(..., example=[
+        "0373785070", "0394535979", "0446679100"
+    ]),
+    bookServices: BookServices = Depends(get_book_service)
+):
+    """
+    Trả về danh sách sách theo danh sách ISBN.
+    """
+    return await bookServices.get_books_by_isbn_list(isbn_list)

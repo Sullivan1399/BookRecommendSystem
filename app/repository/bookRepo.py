@@ -16,6 +16,17 @@ class BookRepository:
     async def get_book_by_id(self, id: ObjectId):
         return await self.collection.find_one({"_id": id})
     
+    async def get_books_by_isbn_list(self, isbn_list: List[str]):
+        """
+        Truy vấn nhiều sách dựa vào danh sách ISBN.
+        """
+        cursor = self.collection.find({"ISBN": {"$in": isbn_list}})
+        books = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            books.append(doc)
+        return books
+    
     async def get_books_paginated(self, page: int = 1, limit: int = 10):
         skip = (page - 1) * limit
         cursor = self.collection.find().skip(skip).limit(limit)

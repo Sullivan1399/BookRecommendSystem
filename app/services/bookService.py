@@ -1,6 +1,7 @@
 from bson import ObjectId
 from app.utils.embedding import generate_embedding
 from app.repository.bookRepo import BookRepository
+from typing import List
 from app.repository.bookEmbeddingRepo import BookEmbeddingRepository
 from app.models.book import BookResponse
 
@@ -70,4 +71,9 @@ class BookServices():
     async def get_latest_books(self, limit: int = 10):
         docs = await self.bookRepository.get_latest_books(limit)
         return [BookResponse(**doc) for doc in docs]
+    
+    async def get_books_by_isbn_list(self, isbn_list: List[str]):
+        books = await self.bookRepository.get_books_by_isbn_list(isbn_list)
+        books = self._convert_id_to_str(books)
+        return [BookResponse(**b) for b in books]
 

@@ -30,7 +30,7 @@ class ChatbotService:
 
     async def stream_response_ollama(self, query: str):
         try:
-            async for chunk in self.gptoss_client.chat_completion(query):
+            async for chunk in self.ollama_client.chat_completion(query):
                 yield chunk
         except Exception as e:
             print(f"Lỗi khi stream từ LLM: {e}")

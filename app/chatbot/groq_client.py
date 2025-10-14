@@ -5,7 +5,8 @@ import json
 from app.config.settings import settings
 
 SYSTEM_PROMPT = (
-    "You are BookBot. Only answer about books (metadata, summaries, recommendations, genres). "
+    "You are BookBot. Only answer about books (metadata, summaries, recommendations, genres)."
+    "Use **Markdown formatting** to structure your answer, including headings, lists, and **bold/italic formatting**."
     "If the user's question is not about books, reply: 'Xin lỗi — tôi chỉ trả lời các câu hỏi liên quan đến sách.'"
 )
 
