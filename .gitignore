@@ -2,3 +2,5 @@
 /data_preprocess/
 __pycache__/
 *.pyc
+/recommendSystem/item_user.pkl
+/data/

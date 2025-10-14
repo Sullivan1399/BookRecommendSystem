@@ -8,6 +8,10 @@ from app.services.userService import UserService
 from app.services.favoriteBookService import FavoriteBookService
 from app.services.favoriteGenreService import FavoriteGenreService
 from app.config.database import get_mongodb_client_singleton
+from app.chatbot.ollama_client import OllamaClientSingleton
+from app.chatbot.groq_client import GroqClient
+from app.services.chatbotService import ChatbotService
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
@@ -63,3 +67,15 @@ async def get_current_admin(current_user=Depends(get_current_user)):
             detail="Admins only"
         )
     return current_user
+
+async def get_ollama_client() -> OllamaClientSingleton:
+    return OllamaClientSingleton()
+
+async def get_gptoss_client() -> GroqClient:
+    return GroqClient()
+
+def get_chatbot_service(
+    ollama_client: OllamaClientSingleton = Depends(get_ollama_client),
+    gptoss_client: GroqClient = Depends(get_gptoss_client)
+) -> ChatbotService:
+    return ChatbotService(ollama_client, gptoss_client)
