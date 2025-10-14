@@ -1,5 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
+from typing import List, Dict, Any
 from app.config.settings import settings
 
 class BookRepository:
@@ -48,3 +49,29 @@ class BookRepository:
     async def aggregate(self, pipeline: list):
         cursor = self.collection.aggregate(pipeline)
         return [doc async for doc in cursor]
+
+    async def get_popular_books(self, limit: int = 10, min_ratings: int = 1, sort_by: str = "ratingCount"):
+        if sort_by not in ("ratingCount", "avgRating"):
+            sort_by = "ratingCount"
+        rating_coll = self.database[settings.RATING_COLLECTION_NAME]
+        pipeline = [
+            {"$group": {"_id": "$ISBN", "ratingCount": {"$sum": 1}, "avgRating": {"$avg": "$Book-Rating"}}},
+            {"$match": {"ratingCount": {"$gte": min_ratings}}},
+            {"$sort": {sort_by: -1}},
+            {"$limit": limit},
+            {"$lookup": {"from": settings.BOOK_COLLECTION_NAME, "localField": "_id", "foreignField": "ISBN", "as": "book"}},
+            {"$unwind": {"path": "$book", "preserveNullAndEmptyArrays": True}},
+            {"$project": {"_id": 0, "ISBN": "$_id", "ratingCount": 1, "avgRating": {"$round": ["$avgRating", 2]}, "book": 1}}
+        ]
+        cursor = rating_coll.aggregate(pipeline)
+        return [doc async for doc in cursor]
+    
+    # return list isbn only
+    async def get_popular_isbns(
+        self,
+        limit: int = 10,
+        min_ratings: int = 1,
+        sort_by: str = "ratingCount"
+    ) -> List[str]:
+        docs = await self.get_popular_books(limit=limit, min_ratings=min_ratings, sort_by=sort_by)
+        return [d["ISBN"] for d in docs if "ISBN" in d]
