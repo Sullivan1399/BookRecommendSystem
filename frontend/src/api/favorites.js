@@ -118,6 +118,13 @@ export const removeFavoriteBook = async (bookId) => {
 };
 
 export const addFavoriteGenre = async (userId, genre) => {
+  let result = {
+    success: false,
+    status_code: null,
+    detail: "",
+    data: null,
+  };
+
   try {
     const res = await fetch(`${API_URL}/favorites/genres/`, {
       method: "POST",
@@ -128,18 +135,50 @@ export const addFavoriteGenre = async (userId, genre) => {
       body: JSON.stringify({ user_id: userId, genre }),
     });
 
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      throw new Error(data.detail || "Không thể thêm thể loại yêu thích");
+    const text = await res.text();
+    console.log("res:", text);
+    let data = {};
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { detail: text };
     }
 
-    return data;
+    // ✅ Nếu thành công
+    if (res.ok) {
+      result.success = true;
+      result.status_code = res.status;
+      result.data = data;
+      result.detail = "Thêm thể loại thành công.";
+      return result;
+    }
+
+    // ✅ Nếu lỗi 400 hoặc duplicate
+    const rawDetail =
+      data?.detail || text || "Không thể thêm thể loại yêu thích";
+    const isDuplicate =
+      res.status === 400 ||
+      rawDetail.toLowerCase().includes("đã có trong danh sách yêu thích");
+
+    result.status_code = res.status;
+    result.detail = rawDetail;
+    result.isDuplicate = isDuplicate;
+    return result; // ⚠️ Không throw nữa
   } catch (error) {
-    console.error("Error adding favorite genre:", error.message);
-    throw error;
+    // ✅ Nếu là lỗi mạng / backend down
+    if (error.message.includes("Failed to fetch")) {
+      result.status_code = 0;
+      result.detail =
+        "Không thể kết nối đến máy chủ. Hãy kiểm tra lại backend hoặc CORS.";
+    } else {
+      result.status_code = 500;
+      result.detail = error.message || "Lỗi không xác định.";
+    }
+    
+    return result;
   }
 };
+
 
 export const getFavoriteGenres = async (page = 1, limit = 10) => {
   try {
@@ -204,7 +243,6 @@ export const removeFavoriteGenre = async (genre) => {
     console.log("✅ Đã xóa thể loại yêu thích:", genre);
     return result;
   } catch (error) {
-    console.error("❌ Error removing favorite genre:", error.message);
     throw error;
   }
 };

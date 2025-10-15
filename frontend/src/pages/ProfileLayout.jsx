@@ -16,7 +16,7 @@ const ProfileLayout = () => {
   const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // 🔍 Lấy thông tin user từ localStorage
+  //  Lấy thông tin user từ localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem("user");
@@ -65,7 +65,7 @@ const ProfileLayout = () => {
             <Link to="/profile/settings">Cài đặt</Link>
           </Menu.Item>
 
-          {/* 🔒 Chỉ admin mới thấy mục này */}
+          {/*  Chỉ admin mới thấy mục này */}
           {isAdmin && (
             <>
               <Menu.Divider />

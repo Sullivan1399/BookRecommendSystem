@@ -115,3 +115,21 @@ body {
   height: 800px;
   max-height: 90vh;
 }
+/* Fix z-index và positioning */
+.ant-modal {
+  z-index: 1001 !important;
+}
+
+.ant-modal-mask {
+  z-index: 1000 !important;
+}
+
+/* Fix nếu Tailwind conflict */
+.custom-modal .ant-modal {
+  z-index: 1001 !important;
+}
+
+/* Đảm bảo body có position relative */
+body {
+  position: relative;
+}

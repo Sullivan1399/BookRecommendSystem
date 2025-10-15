@@ -20,3 +20,7 @@ class RatingCreate(RatingBase):
 
 class BookResponse(RatingBase):
     id: Optional[str] = Field(None, alias="_id")
+
+class RatingWithUser(RatingBase):
+    FullName: Optional[str] = None
+    Username: Optional[str] = None

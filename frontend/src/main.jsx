@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.jsx";
 import { notification } from "antd";
 import "antd/dist/reset.css";
+import { ConfigProvider, App as AntApp } from "antd";
 
 // Cấu hình global cho notification
 notification.config({
@@ -15,7 +16,15 @@ notification.config({
 });
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <ConfigProvider
+    theme={{
+      token: {
+        // Fix modal z-index
+        zIndexPopup: 1000,
+      },
+    }}
+    getPopupContainer={() => document.body} // ✅ Quan trọng: Force modal render vào body
+  >
     <App />
-  </StrictMode>
+  </ConfigProvider>
 );

@@ -11,6 +11,7 @@ from app.config.database import get_mongodb_client_singleton
 from app.chatbot.ollama_client import OllamaClientSingleton
 from app.chatbot.groq_client import GroqClient
 from app.services.chatbotService import ChatbotService
+from app.services.ratingService import RatingService
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
@@ -79,3 +80,8 @@ def get_chatbot_service(
     gptoss_client: GroqClient = Depends(get_gptoss_client)
 ) -> ChatbotService:
     return ChatbotService(ollama_client, gptoss_client)
+
+
+def get_rating_service() -> RatingService:
+    client = get_mongodb_client_singleton()
+    return RatingService(client)

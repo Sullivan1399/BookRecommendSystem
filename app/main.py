@@ -7,7 +7,7 @@ from app.config.settings import settings
 from app.config.database import MongoClientSingleton
 from app.services import bookService, userService, recommendService
 from app.routers import bookRoute, userRoute, favoriteBookRouter, favoriteGenreRouter, recommendRouter, chatbotRouter
-
+from app.routers import ratingRouter
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,6 +44,7 @@ app.add_middleware(
 app.include_router(bookRoute.router, prefix="/books", tags=["Books"])
 app.include_router(userRoute.router, prefix="/users", tags=["Users"])
 app.include_router(recommendRouter.router, prefix="/recommend", tags=["Recommends"])
+app.include_router(ratingRouter.router)
 app.include_router(chatbotRouter.router, prefix="/chat", tags=["Chatbot"])
 app.include_router(favoriteBookRouter.router)   
 app.include_router(favoriteGenreRouter.router)
