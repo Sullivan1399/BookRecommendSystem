@@ -14,6 +14,10 @@ class FavoriteGenreRepository:
             return None
         fav["_id"] = str(fav["_id"])
         return FavoriteGenreResponse(**fav)
+    
+    async def exists(self, user_id: str, genre: str) -> bool:
+        doc = await self.collection.find_one({"user_id": user_id, "genre": genre})
+        return doc is not None
 
     async def add(self, user_id: str, genre: str) -> FavoriteGenreResponse:
         data = {"user_id": user_id, "genre": genre, "createdAt": datetime.utcnow()}

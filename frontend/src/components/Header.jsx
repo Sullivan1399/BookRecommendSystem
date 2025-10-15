@@ -45,7 +45,6 @@ const HeaderNavbar = () => {
   const buttons = [
     { text: "Bộ sách", href: "/books/list" },
     { text: "Bán chạy", href: "/best-sellers" },
-    { text: "Khuyến mãi", href: "/sale" },
   ];
 
   const userMenu = (
@@ -106,7 +105,7 @@ const HeaderNavbar = () => {
 
       {/* Search + Select */}
       <div className="flex items-center ml-auto w-full justify-center mx-8">
-        <Space.Compact style={{ width: "100%" }}>
+        <Space.Compact style={{ width: "90%" }}>
           {/* 🟣 Ô chọn chế độ */}
           <Select
             defaultValue="normal"

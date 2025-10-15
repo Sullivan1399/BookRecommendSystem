@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Dropdown, Menu, message } from "antd";
 import {
   HeartOutlined,
@@ -7,7 +7,7 @@ import {
   BookFilled,
 } from "@ant-design/icons";
 import { addFavoriteBook, removeFavoriteBook } from "../api/favorites";
-import { useNavigate } from "react-router-dom"; // ✅ thêm dòng này
+import { useNavigate } from "react-router-dom";
 
 const { Meta } = Card;
 
@@ -18,11 +18,21 @@ const BookCard = ({
 }) => {
   const [isFavorite, setIsFavorite] = useState(defaultFavorite);
   const [favoriteType, setFavoriteType] = useState("heart"); // "heart" hoặc "bookmark"
-  const navigate = useNavigate(); // ✅ để điều hướng chi tiết
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // ✅ để xác định login
+  const navigate = useNavigate();
 
-  // Hàm toggle yêu thích
+  // ✅ Kiểm tra trạng thái đăng nhập khi component mount
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // ✅ Toggle yêu thích (chỉ khi login)
   const toggleFavorite = async (e) => {
     e.stopPropagation();
+
+    if (!isLoggedIn) return; // ❌ chưa đăng nhập → không làm gì
+
     try {
       if (!isFavorite) {
         await addFavoriteBook(book._id || book.ISBN);
@@ -36,13 +46,17 @@ const BookCard = ({
         onToggleFavorite?.(book, false);
       }
     } catch (err) {
+      console.error("❌ Lỗi thao tác yêu thích:", err);
       message.error(err.message || "Lỗi thao tác yêu thích");
     }
   };
+
+  // ✅ Chuyển sang trang chi tiết khi click
   const handleCardClick = () => {
     navigate("/books/details", { state: { book } });
   };
-  // Menu đổi biểu tượng
+
+  // ✅ Menu đổi biểu tượng
   const handleChangeType = ({ key }) => {
     setFavoriteType(key);
   };
@@ -57,7 +71,7 @@ const BookCard = ({
     />
   );
 
-  // Icon hiển thị
+  // ✅ Icon hiển thị
   const getIcon = () => {
     if (favoriteType === "heart") {
       return isFavorite ? (
@@ -68,19 +82,19 @@ const BookCard = ({
     }
     if (favoriteType === "bookmark") {
       return isFavorite ? (
-        <BookFilled className="text-white text-xl" />
+        <BookFilled className="text-blue-600 text-xl" />
       ) : (
         <BookOutlined className="text-blue-500 text-xl" />
       );
     }
   };
 
-  // Style cho nút yêu thích
+  // ✅ Style cho nút yêu thích
   const getFavoriteButtonStyle = () => {
     if (favoriteType === "heart") {
       return isFavorite
-        ? "bg-red-500 border-black"
-        : "bg-white text-red-500 hover:bg-red-400 border-black";
+        ? "bg-red-500 border border-red-600"
+        : "bg-white text-red-500 hover:bg-red-50 border border-gray-300";
     }
     if (favoriteType === "bookmark") {
       return isFavorite
@@ -92,17 +106,19 @@ const BookCard = ({
 
   return (
     <div className="relative h-full">
-      {/* Nút yêu thích */}
-      <Dropdown overlay={menu} trigger={["contextMenu"]}>
-        <div
-          onClick={toggleFavorite}
-          className={`!absolute top-3 right-3 z-10 rounded-full shadow-md p-2 cursor-pointer transition-none hover:scale-110 ${getFavoriteButtonStyle()}`}
-        >
-          {getIcon()}
-        </div>
-      </Dropdown>
+      {/* ❤️ Nút yêu thích — chỉ hiển thị nếu đã login */}
+      {isLoggedIn && (
+        <Dropdown overlay={menu} trigger={["contextMenu"]}>
+          <div
+            onClick={toggleFavorite}
+            className={`!absolute top-3 right-3 z-10 rounded-full shadow-md p-2 cursor-pointer transition-all hover:scale-110 ${getFavoriteButtonStyle()}`}
+          >
+            {getIcon()}
+          </div>
+        </Dropdown>
+      )}
 
-      {/* Thẻ sách */}
+      {/* 📘 Thẻ sách */}
       <Card
         hoverable
         onClick={handleCardClick}
